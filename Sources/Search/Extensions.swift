@@ -538,23 +538,37 @@ final class Extensions: NSObject, ObservableObject {
     }
 
     func installFolder(at source: URL, confirm: Bool = true) {
+        Task { _ = await installFolderAwaiting(at: source, confirm: confirm) }
+    }
+
+    /// Same as `installFolder(at:confirm:)`, but waits and returns the new id
+    /// (nil if the folder was refused, cancelled, or failed).
+    @discardableResult
+    func installFolderAwaiting(at source: URL, confirm: Bool = true) async -> String? {
         guard FileManager.default.fileExists(atPath: source.appendingPathComponent("manifest.json").path) else {
             browser?.announce("That folder has no manifest.json")
-            return
+            return nil
         }
         let id = "local-" + String(UUID().uuidString.prefix(8)).lowercased()
         let staged = Extensions.stagingFolder(for: id)
-        Task {
-            defer { try? FileManager.default.removeItem(at: staged) }
-            do {
-                try FileManager.default.createDirectory(at: Extensions.folder, withIntermediateDirectories: true)
-                try FileManager.default.copyItem(at: source, to: staged)
-                try ExtensionShims.prepare(staged, fresh: true)
-                try await admit(staged, as: id, fromStore: false, finalFolder: Extensions.folder(for: id), confirm: confirm || !Store.testing, source: source)
-            } catch {
-                browser?.announce("Couldn't install the extension: \(error.localizedDescription)")
-            }
+        defer { try? FileManager.default.removeItem(at: staged) }
+        do {
+            try FileManager.default.createDirectory(at: Extensions.folder, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: source, to: staged)
+            try ExtensionShims.prepare(staged, fresh: true)
+            try await admit(staged, as: id, fromStore: false, finalFolder: Extensions.folder(for: id), confirm: confirm || !Store.testing, source: source)
+            return installed.contains(where: { $0.id == id }) ? id : nil
+        } catch {
+            browser?.announce("Couldn't install the extension: \(error.localizedDescription)")
+            return nil
         }
+    }
+
+    /// Update a row already in `installed` (e.g. refresh `source` for AI reloads).
+    func replaceInstalled(_ item: Installed) {
+        guard let index = installed.firstIndex(where: { $0.id == item.id }) else { return }
+        installed[index] = item
+        save()
     }
 
     /// Takes the extension up again — the way Chrome's reload button does
@@ -724,6 +738,8 @@ final class Extensions: NSObject, ObservableObject {
         loadsThisRun.remove(id)
         loadedBefore.remove(id)
         Store.settings.removeObject(forKey: "extensions.newtab.\(id)")
+        // Drop AI Studio's slug→id map when this install came from there.
+        ExtensionDeployer.forget(extensionID: id)
         installed.removeAll { $0.id == id }
         save()
         try? FileManager.default.removeItem(at: Extensions.folder(for: id))

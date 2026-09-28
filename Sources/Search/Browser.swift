@@ -339,6 +339,9 @@ final class Browser: NSObject, ObservableObject {
     @Published var finding = false
     /// The AI panel's conversation about the page, while it is open.
     @Published var assisting: Assistant?
+    /// AI Extension Studio column on the right.
+    @Published var studioShowing = false
+    @Published var studio: AIStudio?
     /// The Settings page it opens on next.
     var settingsPage: SettingsPanel.Page {
         get { SettingsPanel.Page(rawValue: Store.settings.string(forKey: "settings.page") ?? "") ?? .general }

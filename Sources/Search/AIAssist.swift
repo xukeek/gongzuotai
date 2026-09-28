@@ -459,6 +459,14 @@ struct AISettings: View {
                         }
                     }
                 }
+                Card {
+                    Line("Extension Studio", "View › Extension Studio (⇧⌘E): describe a Chrome extension and it is generated, installed, and injected into matching pages. Needs macOS 15.4+") {
+                        Pill(browser.studioShowing ? "Hide" : "Open") {
+                            browser.tuning = false
+                            browser.toggleStudio()
+                        }
+                    }
+                }
             }
         }
     }

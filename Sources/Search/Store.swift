@@ -19,9 +19,15 @@ enum Store {
         return Bundle.main.executablePath?.contains("/.build/") == true
     }
 
+    /// Display name and on-disk folder for this fork (isolated from upstream Search).
+    static let brand = "Gongzuotai"
+    /// Bundle id for packaged builds (see build.sh). Differs from Search so
+    /// WebKit and the keychain keep their own containers.
+    static let bundleID = "com.xukeek.gongzuotai"
+
     /// Which test world a test run lives in. SEARCH_PROBE=1, or a run from
-    /// the build folder, is the test world, "Search (test)". SEARCH_PROBE=
-    /// <name> is a world of its own, "Search (<name>)", with settings and
+    /// the build folder, is the test world, "Gongzuotai (test)". SEARCH_PROBE=
+    /// <name> is a world of its own, "Gongzuotai (<name>)", with settings and
     /// WebKit stores of its own: two sessions testing at once, or a
     /// measurement that needs a browser nobody has installed anything in,
     /// never borrow each other's. Nil for the browser somebody is using.
@@ -83,7 +89,9 @@ enum Store {
     /// differ from stores made by identifier in how long extension workers
     /// are let live.
     static var ownContainer: Bool {
-        (Bundle.main.bundleIdentifier ?? "") != "com.officecommun.search"
+        let id = Bundle.main.bundleIdentifier ?? ""
+        // Packaged Gongzuotai, or any non-Search id, gets its own WebKit container.
+        return id != "com.officecommun.search"
     }
 
     /// The fixed identifiers of a test world's WebKit stores: 1 for websites,
@@ -101,23 +109,20 @@ enum Store {
         return UUID(uuidString: text)!
     }
 
-    /// The app was called Office Browser until September 2026. Everything it
-    /// kept — the session, the pins, the history, what is hidden on each site
-    /// — moves to the new name the first time the new name runs, and the
-    /// settings are copied across. Nothing is left to be lost.
+    /// Application Support folder for this build — Gongzuotai, isolated from
+    /// upstream Search so settings, sessions and extensions never collide.
     static let folder: URL = {
         let support = FileManager.default
             .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let home = support.appendingPathComponent(world.map { "Search (\($0))" } ?? "Search", isDirectory: true)
-        if !testing {
-            let old = support.appendingPathComponent("Office Browser", isDirectory: true)
-            let files = FileManager.default
-            if !files.fileExists(atPath: home.path), files.fileExists(atPath: old.path) {
-                try? files.moveItem(at: old, to: home)
-            }
-        }
+        let home = support.appendingPathComponent(world.map { "\(brand) (\($0))" } ?? brand, isDirectory: true)
+        // Do not migrate from Search / Office Browser — this fork keeps its own data.
         return home
     }()
+
+    /// Unpacked MV3 packages written by the AI Extension Studio.
+    static var aiExtensions: URL {
+        folder.appendingPathComponent("AIExtensions", isDirectory: true)
+    }
 
     static func file(_ name: String) -> URL {
         folder.appendingPathComponent(name)

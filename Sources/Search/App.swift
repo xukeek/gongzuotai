@@ -37,7 +37,7 @@ struct SearchApp: App {
         // shares, and a probe resized for a test once changed the size the
         // real window came back at. The other windows' frames are in
         // windows.json (see Windows.swift).
-        Window("Search", id: Browsers.sceneID) {
+        Window(Store.brand, id: Browsers.sceneID) {
             SceneRoot(slot: SceneSlot.shared)
                 .frame(minWidth: 640, minHeight: 420)
         }
@@ -126,6 +126,10 @@ struct SearchApp: App {
                     Button("Ask About This Page…") { browser.askAboutPage() }
                         .shortcut("view.ask")
                         .disabled(browser.active?.isBlank ?? true)
+                    Button(browser.studioShowing ? "Hide Extension Studio" : "Extension Studio") {
+                        browser.toggleStudio()
+                    }
+                    .keyboardShortcut("e", modifiers: [.command, .shift])
                 }
                 Divider()
                 Button("Hide Elements…") { browser.toggleHiding() }
@@ -368,7 +372,7 @@ struct ContentView: View {
             // edge and overshot the window with the spring (see `room`).
             stage
                 .padding(.leading, sideOnRight ? 0 : roomed.width)
-                .padding(.trailing, sideOnRight ? roomed.width : 0)
+                .padding(.trailing, (sideOnRight ? roomed.width : 0) + studioPad)
                 .padding(.top, roomed.height)
                 .offset(x: sideOnRight ? 0 : chrome.width - roomed.width,
                         y: chrome.height - roomed.height)
@@ -379,11 +383,13 @@ struct ContentView: View {
             if sidebar {
                 SideBar(browser: browser, prefs: browser.prefs)
                     .frame(maxHeight: .infinity, alignment: .top)
+                    .padding(.trailing, studioPad)
                     .transition(.move(edge: sideOnRight ? .trailing : .leading))
             }
 
             if !browser.prefs.sidebar, !browser.folded, fullscreenTab == nil {
                 TabBar(browser: browser)
+                    .padding(.trailing, studioPad)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
 
@@ -391,15 +397,24 @@ struct ContentView: View {
             if barShown {
                 BookmarksBar(browser: browser, bookmarks: browser.bookmarks)
                     .padding(.leading, sideOnRight ? 0 : chrome.width)
-                    .padding(.trailing, sideOnRight ? chrome.width : 0)
+                    .padding(.trailing, (sideOnRight ? chrome.width : 0) + studioPad)
                     .padding(.top, band)
                     .transition(.opacity)
+            }
+
+            // AI Extension Studio: a real right column, not the tab strip.
+            if browser.studioShowing, fullscreenTab == nil, let studio = browser.studio {
+                AIStudioSide(browser: browser, studio: studio)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                    .transition(.move(edge: .trailing))
             }
         }
         .ignoresSafeArea()
         .background { fullscreenWatch }
         .animation(Motion.glide, value: browser.prefs.sidebar)
         .animation(Motion.glide, value: browser.prefs.sidePosition)
+        .animation(Motion.glide, value: browser.studioShowing)
         .animation(.easeOut(duration: 0.12), value: fullscreenTab?.id)
         .onAppear { if room == nil { room = chrome } }
         .onChange(of: chrome) { old, new in make(room: new, after: old) }
@@ -463,6 +478,11 @@ struct ContentView: View {
         browser.prefs.sidebar && browser.prefs.sidePosition == .right
     }
 
+    /// Room the AI Extension Studio takes from the page's trailing edge.
+    private var studioPad: CGFloat {
+        browser.studioShowing && fullscreenTab == nil ? AIStudio.width : 0
+    }
+
     /// Chrome going away gives the page its room at once, the page sliding
     /// out from under it at its new size. Chrome arriving slides over a page
     /// still at its old size, which gives up the room once the slide is over.
@@ -521,7 +541,7 @@ struct ContentView: View {
                 // is not what the field is standing over, and dimming it along
                 // with the page says otherwise.
                 .padding(.leading, sidebar && !sideOnRight ? browser.prefs.sideWidth : 0)
-                .padding(.trailing, sidebar && sideOnRight ? browser.prefs.sideWidth : 0)
+                .padding(.trailing, (sidebar && sideOnRight ? browser.prefs.sideWidth : 0) + studioPad)
                 .transition(.scale(scale: 0.97).combined(with: .opacity))
         }
     }
@@ -1157,6 +1177,10 @@ struct ContentView: View {
             }
             if browser.assisting != nil {
                 browser.closeAssistant()
+                return true
+            }
+            if browser.studioShowing {
+                browser.closeStudio()
                 return true
             }
             if browser.veiling {

@@ -101,7 +101,7 @@ enum AIProvider: String, CaseIterable, Identifiable {
 enum AIKeys {
     enum Saved { case kept, unavailable, failed }
 
-    private static let service = "com.officecommun.search.ai"
+    private static let service = "\(Store.bundleID).ai"
     /// A test run's, by account, gone when it quits.
     private static var rehearsal: [String: String] = [:]
 
@@ -134,7 +134,7 @@ enum AIKeys {
         item[kSecValueData as String] = Data(key.utf8)
         item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         item[kSecAttrSynchronizable as String] = false
-        item[kSecAttrLabel as String] = "Search — \(provider.name) key"
+        item[kSecAttrLabel as String] = "\(Store.brand) — \(provider.name) key"
         // The last four, to tell keys apart in Settings without reading one.
         item[kSecAttrComment as String] = String(key.suffix(4))
         switch SecItemAdd(item as CFDictionary, nil) {
