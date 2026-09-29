@@ -1,0 +1,74 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSCameraUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Websites you visit can ask to use your camera. Gongzuotai asks you the first time each site does and keeps your answer; Settings › Privacy forgets them."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你访问的网站可以请求使用相机。Gongzuotai 会在每个站点首次请求时询问并记住你的选择；设置 › 隐私可忘记这些选择。"
+          }
+        }
+      }
+    },
+    "NSMicrophoneUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Websites you visit can ask to use your microphone. Gongzuotai asks you the first time each site does and keeps your answer; Settings › Privacy forgets them."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你访问的网站可以请求使用麦克风。Gongzuotai 会在每个站点首次请求时询问并记住你的选择；设置 › 隐私可忘记这些选择。"
+          }
+        }
+      }
+    },
+    "NSLocationUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Websites you visit can ask for your location. Gongzuotai asks you each time a site does, unless you choose Always allow for it; Settings › Privacy forgets those choices."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你访问的网站可以请求你的位置。除非你选择始终允许，Gongzuotai 会在每次请求时询问；设置 › 隐私可忘记这些选择。"
+          }
+        }
+      }
+    },
+    "NSDownloadsFolderUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files you download are saved to your Downloads folder."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载的文件会保存到「下载」文件夹。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

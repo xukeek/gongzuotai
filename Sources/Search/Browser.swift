@@ -1059,7 +1059,7 @@ final class Browser: NSObject, ObservableObject {
         for space in spaces {
             Spaces.store(for: space.id).removeData(ofTypes: types, modifiedSince: .distantPast) {}
         }
-        announce("Signed out of everything")
+        announce(L("announce.signedOutAll"))
     }
 
     /// Only what was fetched to draw pages, not what identifies you.
@@ -1072,7 +1072,7 @@ final class Browser: NSObject, ObservableObject {
         for space in spaces {
             Spaces.store(for: space.id).removeData(ofTypes: types, modifiedSince: .distantPast) {}
         }
-        announce("Cache cleared")
+        announce(L("announce.cacheCleared"))
     }
 
     func clearHistory() {
@@ -1081,7 +1081,7 @@ final class Browser: NSObject, ObservableObject {
         // are the searches learned from sites visited (SiteSearch.swift).
         Favicons.shared.forgetAll()
         SiteSearch.forget()
-        announce("History cleared")
+        announce(L("announce.historyCleared"))
     }
 
     /// The last few places, for the History menu.
@@ -1133,7 +1133,7 @@ final class Browser: NSObject, ObservableObject {
             Store.settings.removeObject(forKey: key)
         }
         SiteNotifications.shared.objectWillChange.send()
-        announce("Camera, microphone, location and notification choices forgotten")
+        announce(L("announce.captureForgotten"))
     }
 
     /// What was last answered to a page asking where you are, in a test run

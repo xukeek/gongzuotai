@@ -46,50 +46,50 @@ struct SearchApp: App {
         .commands {
             CommandGroup(replacing: .newItem) {
                 // Another window, with tabs of its own (see Windows.swift).
-                Button("New Window") { Browsers.newWindow() }
+                Button(L("file.newWindow")) { Browsers.newWindow() }
                     .shortcut("file.newWindow")
-                Button("New Tab") { browser.newTab() }
+                Button(L("file.newTab")) { browser.newTab() }
                     .shortcut("file.newTab")
-                Button("New Private Tab") { browser.newShyTab() }
+                Button(L("file.newPrivateTab")) { browser.newShyTab() }
                     .shortcut("file.newPrivateTab")
-                Button("Reopen Closed Tab") { browser.reopen() }
+                Button(L("file.reopen")) { browser.reopen() }
                     .shortcut("file.reopen")
                     .disabled(browser.ghosts.isEmpty && Browsers.lastClosedAt == nil)
                 Divider()
-                Button("Open Address…") { browser.edit() }
+                Button(L("file.openAddress")) { browser.edit() }
                     .shortcut("file.openAddress")
                 Divider()
                 // Another browser's bookmarks, history, passwords and the
                 // rest, as Safari's File › Import From: the one sheet every
                 // other way in opens too.
-                Button("Bring Things Over…") { browser.bringingIn = "" }
+                Button(L("file.import")) { browser.bringingIn = "" }
                     .shortcut("file.import")
                 Divider()
-                Button("Close Tab") { if let tab = browser.active { browser.close(tab) } }
+                Button(L("file.closeTab")) { if let tab = browser.active { browser.close(tab) } }
                     .shortcut("file.closeTab")
             }
             CommandGroup(replacing: .printItem) {
-                Button("Share…") { browser.share() }
+                Button(L("file.share")) { browser.share() }
                     .shortcut("file.share")
                     .disabled(browser.active?.isBlank ?? true)
-                Button("Print…") { browser.printPage() }
+                Button(L("file.print")) { browser.printPage() }
                     .shortcut("file.print")
                     .disabled(browser.active?.isBlank ?? true)
             }
             CommandGroup(after: .pasteboard) {
                 Divider()
-                Button("Find on Page…") { browser.openFind() }
+                Button(L("edit.find")) { browser.openFind() }
                     .shortcut("edit.find")
                     .disabled(browser.active?.isBlank ?? true)
-                Button("Find Next") { browser.look(forward: true) }
+                Button(L("edit.findNext")) { browser.look(forward: true) }
                     .shortcut("edit.findNext")
                     .disabled(!browser.finding)
-                Button("Find Previous") { browser.look(forward: false) }
+                Button(L("edit.findPrevious")) { browser.look(forward: false) }
                     .shortcut("edit.findPrevious")
                     .disabled(!browser.finding)
             }
             CommandGroup(replacing: .toolbar) {
-                Toggle("Show Tabs in Sidebar", isOn: Binding(
+                Toggle(L("view.sidebar"), isOn: Binding(
                     get: { browser.prefs.sidebar },
                     set: { _ in browser.toggleSidebar() }
                 ))
@@ -97,10 +97,10 @@ struct SearchApp: App {
                 // Folded away, not moved (see Fold.swift) — the column, or the
                 // strip across the top.
                 Button(browser.prefs.sidebar
-                       ? (browser.folded ? "Show Sidebar" : "Hide Sidebar")
-                       : (browser.folded ? "Show Tab Bar" : "Hide Tab Bar")) { browser.toggleFold() }
+                       ? (browser.folded ? L("menu.view.showSidebar") : L("menu.view.hideSidebar"))
+                       : (browser.folded ? L("menu.view.showTabBar") : L("menu.view.hideTabBar"))) { browser.toggleFold() }
                     .shortcut("view.fold")
-                Picker("Tabs Wear", selection: Binding(
+                Picker(L("menu.view.tabsWear"), selection: Binding(
                     get: { browser.prefs.glyph },
                     set: { browser.prefs.glyph = $0 }
                 )) {
@@ -109,123 +109,123 @@ struct SearchApp: App {
                     }
                 }
                 Divider()
-                Button("Reload Page") { browser.reload() }
+                Button(L("view.reload")) { browser.reload() }
                     .shortcut("view.reload")
-                Button("Reload Page From Origin") { browser.reload(fromOrigin: true) }
+                Button(L("view.reloadOrigin")) { browser.reload(fromOrigin: true) }
                     .shortcut("view.reloadOrigin")
-                Button("Reading Mode") { browser.toggleReader() }
+                Button(L("view.reader")) { browser.toggleReader() }
                     .shortcut("view.reader")
-                Button("Float Video") { browser.toggleFloat() }
+                Button(L("view.float")) { browser.toggleFloat() }
                     .shortcut("view.float")
                 // The AI add-on's, only once it is on (Settings › AI).
                 if browser.prefs.ai {
                     Divider()
-                    Button("Summarize Page") { browser.summarizePage() }
+                    Button(L("view.summarize")) { browser.summarizePage() }
                         .shortcut("view.summarize")
                         .disabled(browser.active?.isBlank ?? true)
-                    Button("Ask About This Page…") { browser.askAboutPage() }
+                    Button(L("view.ask")) { browser.askAboutPage() }
                         .shortcut("view.ask")
                         .disabled(browser.active?.isBlank ?? true)
-                    Button(browser.studioShowing ? "Hide Extension Studio" : "Extension Studio") {
+                    Button(browser.studioShowing ? L("menu.view.hideStudio") : L("menu.view.studio")) {
                         browser.toggleStudio()
                     }
                     .keyboardShortcut("e", modifiers: [.command, .shift])
                 }
                 Divider()
-                Button("Hide Elements…") { browser.toggleHiding() }
+                Button(L("view.hide")) { browser.toggleHiding() }
                     .shortcut("view.hide")
-                Button("Hidden on This Site…") { browser.reviewing.toggle() }
+                Button(L("view.hidden")) { browser.reviewing.toggle() }
                     .shortcut("view.hidden")
                 Divider()
-                Button("Zoom In") { browser.zoom(by: 1.1) }
+                Button(L("view.zoomIn")) { browser.zoom(by: 1.1) }
                     .shortcut("view.zoomIn")
-                Button("Zoom Out") { browser.zoom(by: 1 / 1.1) }
+                Button(L("view.zoomOut")) { browser.zoom(by: 1 / 1.1) }
                     .shortcut("view.zoomOut")
-                Button("Actual Size") { browser.resetZoom() }
+                Button(L("view.actualSize")) { browser.resetZoom() }
                     .shortcut("view.actualSize")
                 Divider()
                 // The Web Inspector, on the keys Chrome and Arc use (see Inspector.swift).
-                Button("Web Inspector") { browser.toggleInspector() }
+                Button(L("view.inspector")) { browser.toggleInspector() }
                     .shortcut("view.inspector")
-                Button("JavaScript Console") { browser.showConsole() }
+                Button(L("view.console")) { browser.showConsole() }
                     .shortcut("view.console")
-                Button("Inspect Element") { browser.inspectElement() }
+                Button(L("view.inspect")) { browser.inspectElement() }
                     .shortcut("view.inspect")
             }
-            CommandMenu("Tabs") {
-                Button("Back") { browser.back() }
+            CommandMenu(L("menu.tabs")) {
+                Button(L("tabs.back")) { browser.back() }
                     .shortcut("tabs.back")
                     .disabled(browser.active?.canGoBack != true)
-                Button("Forward") { browser.forward() }
+                Button(L("tabs.forward")) { browser.forward() }
                     .shortcut("tabs.forward")
                     .disabled(browser.active?.canGoForward != true)
                 Divider()
-                Button("Next Tab") { browser.step(1) }
+                Button(L("tabs.next")) { browser.step(1) }
                     .shortcut("tabs.next")
-                Button("Previous Tab") { browser.step(-1) }
+                Button(L("tabs.previous")) { browser.step(-1) }
                     .shortcut("tabs.previous")
-                Button("Search Tabs…") { browser.summon() }
+                Button(L("tabs.search")) { browser.summon() }
                     .shortcut("tabs.search")
                 Divider()
                 if browser.prefs.splitView {
-                    Button("Split Current Page") { browser.startSplit() }
+                    Button(L("tabs.split")) { browser.startSplit() }
                         .shortcut("tabs.split")
                         .disabled(browser.active == nil || browser.active?.bench == true)
-                    Button("Focus Left Page") { browser.focusPane(onLeft: true) }
+                    Button(L("tabs.focusLeftPane")) { browser.focusPane(onLeft: true) }
                         .shortcut("tabs.focusLeftPane")
                         .disabled(browser.activeSplit == nil)
-                    Button("Focus Right Page") { browser.focusPane(onLeft: false) }
+                    Button(L("tabs.focusRightPane")) { browser.focusPane(onLeft: false) }
                         .shortcut("tabs.focusRightPane")
                         .disabled(browser.activeSplit == nil)
-                    Button("Swap Pages") { browser.swapSplit() }
+                    Button(L("tabs.swapSplit")) { browser.swapSplit() }
                         .shortcut("tabs.swapSplit")
                         .disabled(browser.activeSplit == nil)
-                    Button("Separate Split Tabs") {
+                    Button(L("tabs.separateSplit")) {
                         if let tab = browser.active { browser.detachSplit(tab) }
                     }
                     .shortcut("tabs.separateSplit")
                     .disabled(browser.activeSplit == nil)
-                    Button("Close Both Pages") { browser.closeSplit() }
+                    Button(L("menu.tabs.closeBoth")) { browser.closeSplit() }
                         .disabled(browser.activeSplit == nil)
                     Divider()
                 }
                 if let tab = browser.active {
                     if tab.pin == nil {
-                        Button("Pin Tab") { browser.pin(tab) }
+                        Button(L("menu.tabs.pin")) { browser.pin(tab) }
                             .disabled(tab.isBlank || tab.shy)
                     } else {
-                        Button("Change Letter") { browser.editLetter(tab) }
-                        Button("Unpin Tab") { browser.unpin(tab) }
+                        Button(L("menu.tabs.changeLetter")) { browser.editLetter(tab) }
+                        Button(L("menu.tabs.unpin")) { browser.unpin(tab) }
                     }
                 }
-                Button("Rename Tab") { if let tab = browser.active { browser.beginTabRename(tab) } }
+                Button(L("tabs.rename")) { if let tab = browser.active { browser.beginTabRename(tab) } }
                     .shortcut("tabs.rename")
                     .disabled(browser.active == nil)
-                Button("Duplicate Tab") { browser.duplicate() }
+                Button(L("tabs.duplicate")) { browser.duplicate() }
                     .shortcut("tabs.duplicate")
                     .disabled(browser.active?.isBlank ?? true)
-                Button("Copy Address") { browser.copyAddress() }
+                Button(L("tabs.copyAddress")) { browser.copyAddress() }
                     .shortcut("tabs.copyAddress")
                     .disabled(browser.active?.isBlank ?? true)
-                Button("Copy as Markdown Link") { browser.copyMarkdownLink() }
+                Button(L("tabs.copyMarkdown")) { browser.copyMarkdownLink() }
                     .shortcut("tabs.copyMarkdown")
                     .disabled(browser.active?.isBlank ?? true)
-                Button("Paste and Go") { browser.pasteAndGo() }
+                Button(L("tabs.pasteAndGo")) { browser.pasteAndGo() }
                     .shortcut("tabs.pasteAndGo")
                 Divider()
-                Button("Close Other Tabs") { if let tab = browser.active { browser.closeOthers(but: tab) } }
+                Button(L("tabs.closeOthers")) { if let tab = browser.active { browser.closeOthers(but: tab) } }
                     .shortcut("tabs.closeOthers")
                     .disabled(browser.tabs.count < 2)
-                Button("Stop Sound in Tab") { browser.pauseMedia() }
+                Button(L("tabs.mute")) { browser.pauseMedia() }
                     .shortcut("tabs.mute")
             }
-            CommandMenu("Bookmarks") {
-                Button(browser.pageKept ? "Edit Bookmark\u{2026}" : "Add This Page") { browser.bookmarkCurrent() }
+            CommandMenu(L("menu.bookmarks")) {
+                Button(browser.pageKept ? L("menu.bookmarks.edit") : L("bookmarks.add")) { browser.bookmarkCurrent() }
                     .shortcut("bookmarks.add")
                     .disabled(browser.active?.isBlank ?? true)
-                Button("Show Bookmarks…") { browser.bookmarking = true }
+                Button(L("bookmarks.show")) { browser.bookmarking = true }
                     .shortcut("bookmarks.show")
-                Toggle("Show Bookmarks Bar", isOn: Binding(
+                Toggle(L("bookmarks.bar"), isOn: Binding(
                     get: { browser.prefs.bookmarksBar },
                     set: { on in withAnimation(Motion.glide) { browser.prefs.bookmarksBar = on } }
                 ))
@@ -233,8 +233,8 @@ struct SearchApp: App {
                 // The bookmarks themselves follow, put in by AppKit (see
                 // BookmarkMenu in Bookmarks.swift).
             }
-            CommandMenu("History") {
-                Section("Recently Visited") {
+            CommandMenu(L("menu.history")) {
+                Section(L("menu.history.recentlyVisited")) {
                     ForEach(browser.recentlyVisited) { trace in
                         Button {
                             browser.open(trace.url, foreground: true)
@@ -244,7 +244,7 @@ struct SearchApp: App {
                     }
                 }
                 if !browser.ghosts.isEmpty {
-                    Section("Recently Closed") {
+                    Section(L("menu.history.recentlyClosed")) {
                         ForEach(browser.ghosts.reversed().prefix(10)) { ghost in
                             Button {
                                 browser.reopen(ghost)
@@ -255,28 +255,28 @@ struct SearchApp: App {
                     }
                 }
                 Divider()
-                Button("Show History…") { browser.recalling = true }
+                Button(L("history.show")) { browser.recalling = true }
                     .shortcut("history.show")
-                Button("Downloads…") { browser.hoarding = true }
+                Button(L("history.downloads")) { browser.hoarding = true }
                     .shortcut("history.downloads")
                 Divider()
-                Button("Clear Browsing Data…") { browser.recallMode = .clearing }
+                Button(L("history.clearData")) { browser.recallMode = .clearing }
                     .shortcut("history.clearData")
-                Button("Clear History") { browser.clearHistory() }
+                Button(L("history.clear")) { browser.clearHistory() }
                     .shortcut("history.clear")
             }
             // Search › Check for Updates…, under About, as in any Mac app.
             CommandGroup(after: .appInfo) { UpdateMenuItem() }
             CommandGroup(after: .appSettings) {
-                Button("Settings…") { browser.tuning = true }
+                Button(L("app.settings")) { browser.tuning = true }
                     .shortcut("app.settings")
-                Button("Welcome…") { browser.welcoming = true }
+                Button(L("app.welcome")) { browser.welcoming = true }
                     .shortcut("app.welcome")
-                Button("Passwords…") { browser.managing = true }
+                Button(L("app.passwords")) { browser.managing = true }
                     .shortcut("app.passwords")
             }
             CommandGroup(replacing: .help) {
-                Button("Send Feedback…") { Links.writeFeedback() }
+                Button(L("menu.help.feedback")) { Links.writeFeedback() }
             }
         }
     }
@@ -521,7 +521,7 @@ struct ContentView: View {
             }
             StoreOffer(browser: browser)
             if browser.veiling {
-                hint("Click anything to hide it   ⌘Z undo   esc done")
+                hint(L("chrome.hint.hideElements"))
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
@@ -725,7 +725,7 @@ struct ContentView: View {
                     .foregroundStyle(Palette.ink)
                 // A file just saved: the line shows it in the Finder.
                 if browser.announcedFile != nil {
-                    Text("Show in Finder")
+                    Text(L("chrome.capture.showInFinder"))
                         .foregroundStyle(Palette.muted)
                 }
             }
@@ -767,14 +767,14 @@ struct ContentView: View {
             .buttonStyle(.plain)
             if ask.once, ask.keeps {
                 Button { browser.allowCapture() } label: {
-                    Text("Always allow")
+                    Text(L("chrome.capture.alwaysAllow"))
                         .font(.system(size: 12))
                         .foregroundStyle(Palette.ink)
                 }
                 .buttonStyle(.plain)
             }
             Button { browser.denyCapture() } label: {
-                Text("Don't allow")
+                Text(L("chrome.capture.dontAllow"))
                     .font(.system(size: 12))
                     .foregroundStyle(Palette.muted)
             }
@@ -801,19 +801,19 @@ struct ContentView: View {
                 .font(.system(size: 12.5))
                 .foregroundStyle(Palette.ink)
                 .lineLimit(1)
-            Button(offer.changed ? "Update" : "Save") { browser.keepOffer() }
+            Button(offer.changed ? L("chrome.storeOffer.update") : L("chrome.storeOffer.save")) { browser.keepOffer() }
                 .buttonStyle(.plain)
                 .font(.system(size: 12))
                 .foregroundStyle(Palette.ground)
                 .padding(.horizontal, 11)
                 .padding(.vertical, 5)
                 .background(Palette.ink, in: Capsule())
-            Button("Not now") { browser.dropOffer() }
+            Button(L("chrome.storeOffer.notNow")) { browser.dropOffer() }
                 .buttonStyle(.plain)
                 .font(.system(size: 12))
                 .foregroundStyle(Palette.muted)
             if !offer.changed {
-                Button("Never here") { browser.neverOffer() }
+                Button(L("chrome.storeOffer.never")) { browser.neverOffer() }
                     .buttonStyle(.plain)
                     .font(.system(size: 12))
                     .foregroundStyle(Palette.muted)
@@ -1482,17 +1482,17 @@ private struct UpdateMenuItem: View {
     var body: some View {
         switch updater.stage {
         case .none:
-            Button(updater.checking ? "Checking for Updates…" : "Check for Updates…") { updater.checkByHand() }
+            Button(updater.checking ? L("updater.checking") : L("updater.check")) { updater.checkByHand() }
                 .disabled(updater.checking)
         case .waiting:
-            Button("Install Update") { updater.install() }
+            Button(L("updater.installUpdate")) { updater.install() }
         case .fetching:
-            Button("Downloading Update…") {}
+            Button(L("updater.downloadingSay")) {}
                 .disabled(true)
         case .ready:
-            Button("Restart to Update") { updater.relaunch() }
+            Button(L("updater.relaunch")) { updater.relaunch() }
         case .offered:
-            Button(updater.fetchingDisk ? "Downloading Update…" : "Download Update…") { updater.openDisk() }
+            Button(updater.fetchingDisk ? L("updater.downloadingSay") : L("updater.downloadUpdate")) { updater.openDisk() }
                 .disabled(updater.fetchingDisk)
         }
     }

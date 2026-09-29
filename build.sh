@@ -78,6 +78,50 @@ cp "$BINARY" "$APP/Contents/MacOS/$NAME"
 # and titles. The plist below points to it.
 cp Search.sdef "$APP/Contents/Resources/"
 
+# Localizations (Localizable.xcstrings / InfoPlist.xcstrings). Add a locale
+# here and in the catalogs — Swift call sites stay on L(…). SPM only copies
+# the raw .xcstrings; compile them so String(localized:) can resolve at run time.
+LOCALES=(en zh-Hans)
+BINDIR="$(dirname "$BINARY")"
+compile_strings() {
+  local dest="$1"
+  [ -d "$dest" ] || return 0
+  xcrun xcstringstool compile Sources/Search/Resources/Localizable.xcstrings -o "$dest"
+}
+for bundle in "$BINDIR"/*.bundle; do
+  [ -d "$bundle" ] || continue
+  compile_strings "$bundle"
+  cp -R "$bundle" "$APP/Contents/Resources/"
+done
+# Permission prompts: InfoPlist.strings per locale from InfoPlist.xcstrings.
+INFOPLIST_XCSTRINGS="Sources/Search/Resources/InfoPlist.xcstrings"
+for loc in "${LOCALES[@]}"; do
+  LPROJ="$APP/Contents/Resources/$loc.lproj"
+  mkdir -p "$LPROJ"
+  python3 - "$INFOPLIST_XCSTRINGS" "$loc" "$LPROJ/InfoPlist.strings" <<'PY'
+import json, sys
+path, loc, out = sys.argv[1:4]
+with open(path, encoding="utf-8") as f:
+    data = json.load(f)
+lines = []
+for key, entry in sorted(data.get("strings", {}).items()):
+    locs = entry.get("localizations", {})
+    block = locs.get(loc) or locs.get("en")
+    if not block:
+        continue
+    val = block["stringUnit"]["value"].replace("\\", "\\\\").replace('"', '\\"')
+    lines.append(f'"{key}" = "{val}";')
+with open(out, "w", encoding="utf-8") as f:
+    f.write("\n".join(lines) + "\n")
+PY
+done
+# Emit CFBundleLocalizations array entries for Info.plist.
+LOCALIZATIONS_XML=""
+for loc in "${LOCALES[@]}"; do
+  LOCALIZATIONS_XML="$LOCALIZATIONS_XML
+    <string>$loc</string>"
+done
+
 # Symbols stay out of the app. The linker leaves every function's name and a
 # map back to the source in the binary — 15,000 entries, more than half of
 # what the app weighed (6.5 MB of binary, 2.7 without them), and nothing the
@@ -140,6 +184,10 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleVersion</key><string>$BUILD</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   $ICONNAME
+  <key>CFBundleDevelopmentRegion</key><string>en</string>
+  <key>CFBundleLocalizations</key>
+  <array>$LOCALIZATIONS_XML
+  </array>
   <key>LSMinimumSystemVersion</key><string>$MINIMUM</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.productivity</string>
   <key>NSHumanReadableCopyright</key><string>© Gongzuotai (fork of Search)</string>
@@ -183,11 +231,11 @@ cat > "$APP/Contents/Info.plist" <<PLIST
        still wants a sentence to put in its own prompt, and touching the APIs
        without one is a crash rather than a refusal. -->
   <key>NSCameraUsageDescription</key>
-  <string>Websites you visit can ask to use your camera. Search asks you the first time each site does and keeps your answer; Settings › Privacy forgets them.</string>
+  <string>Websites you visit can ask to use your camera. Gongzuotai asks you the first time each site does and keeps your answer; Settings › Privacy forgets them.</string>
   <key>NSMicrophoneUsageDescription</key>
-  <string>Websites you visit can ask to use your microphone. Search asks you the first time each site does and keeps your answer; Settings › Privacy forgets them.</string>
+  <string>Websites you visit can ask to use your microphone. Gongzuotai asks you the first time each site does and keeps your answer; Settings › Privacy forgets them.</string>
   <key>NSLocationUsageDescription</key>
-  <string>Websites you visit can ask for your location. Search asks you each time a site does, unless you choose Always allow for it; Settings › Privacy forgets those choices.</string>
+  <string>Websites you visit can ask for your location. Gongzuotai asks you each time a site does, unless you choose Always allow for it; Settings › Privacy forgets those choices.</string>
   <key>NSDownloadsFolderUsageDescription</key>
   <string>Files you download are saved to your Downloads folder.</string>
 </dict>

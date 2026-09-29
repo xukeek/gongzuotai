@@ -258,7 +258,7 @@ private struct SiteChip: View {
         .frame(height: 22)
         .background(Palette.wash, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Searching \(site.name)")
+        .accessibilityLabel(L("chrome.omnibox.searchSiteA11y", site.name))
     }
 }
 
@@ -269,12 +269,12 @@ private struct SiteOfferRow: View {
     var body: some View {
         HStack(spacing: 10) {
             SiteIcon(site: site)
-            Text("Search \(site.name)")
+            Text(L("chrome.omnibox.searchSite", site.name))
                 .font(.system(size: 13))
                 .foregroundStyle(Palette.ink)
                 .lineLimit(1)
             Spacer(minLength: 0)
-            Text("Tab")
+            Text(L("chrome.omnibox.tab"))
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Palette.muted)
                 .padding(.horizontal, 6)
@@ -288,7 +288,7 @@ private struct SiteOfferRow: View {
         }
         .onHover { hovering = $0 }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Search \(site.name), press Tab")
+        .accessibilityLabel(L("chrome.omnibox.searchSiteTabA11y", site.name))
     }
 }
 
@@ -387,7 +387,7 @@ struct AddressField: NSViewRepresentable {
         // SwiftUI picks its own colour for a placeholder, and on a pale ground
         // that colour was near-white.
         field.placeholderAttributedString = NSAttributedString(
-            string: "Enter a web address",
+            string: L("chrome.omnibox.placeholder"),
             attributes: [
                 .font: NSFont.systemFont(ofSize: 15.5),
                 .foregroundColor: NSColor(Palette.ink.opacity(0.3)),

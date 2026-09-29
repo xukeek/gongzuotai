@@ -8,6 +8,9 @@ let package = Package(
         .executableTarget(
             name: "Search",
             path: "Sources/Search",
+            // Localizable.xcstrings and InfoPlist.xcstrings — add a locale in
+            // the catalog and in build.sh's LOCALES; call sites stay on L(…).
+            resources: [.process("Resources")],
             // Same reasoning as the canvas app next door: the whole interface is
             // main-thread by nature, and Swift 6's strict isolation buys nothing
             // here but ceremony.

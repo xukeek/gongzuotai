@@ -59,7 +59,7 @@ final class Assistant: ObservableObject, Identifiable {
             self.addressed = self.read?.addressed ?? false
             self.reading = false
             guard self.read != nil else {
-                self.trouble = "There's nothing on this page to read."
+                self.trouble = L("assistant.nothingToRead")
                 return
             }
             if summary { self.ask(.summary) }
@@ -189,37 +189,37 @@ extension Browser {
         guard prefs.ai, let provider = prefs.aiProvider else {
             settingsPage = .ai
             tuning = true
-            announce(prefs.ai ? "Choose where the AI runs" : "Turn on AI in Settings › AI")
+            announce(prefs.ai ? L("announce.chooseWhereAI") : L("announce.turnOnAI"))
             return
         }
         // A web page, nothing else: not a file, not an extension's page.
         guard let scheme = tab.pageAddress?.scheme?.lowercased(), scheme == "https" || scheme == "http" else {
-            announce("AI works on web pages")
+            announce(L("announce.aiWebPages"))
             return
         }
         // A private tab leaves nothing behind anywhere, a provider included.
         let shy = tab.shy || tab.built.map { !$0.configuration.websiteDataStore.isPersistent } == true
         guard !shy || provider.isLocal else {
-            announce("In a private tab, only an AI on this Mac")
+            announce(L("announce.aiPrivateTabLocalOnly"))
             return
         }
         if provider == .thisMac, AIEngine.shared.state != .ready {
             settingsPage = .ai
             tuning = true
-            announce("The model isn't on this Mac yet")
+            announce(L("announce.aiModelNotOnMac"))
             return
         }
         let model = prefs.aiModel(for: provider)
         guard !model.isEmpty else {
             settingsPage = .ai
             tuning = true
-            announce("Choose a model for \(provider.name)")
+            announce(L("announce.aiChooseModelFor", provider.name))
             return
         }
         guard provider.isLocal || AIKeys.hint(for: provider) != nil else {
             settingsPage = .ai
             tuning = true
-            announce("No key for \(provider.name) yet")
+            announce(L("announce.aiNoKeyFor", provider.name))
             return
         }
         // Asked again on the page the panel is already about: the same
@@ -251,11 +251,11 @@ struct AssistantPanel: View {
                 Image(systemName: "sparkles")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Palette.muted)
-                Text(assistant.summary ? "Summary" : "About this page")
+                Text(assistant.summary ? L("assistant.summary") : L("assistant.aboutPage"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Palette.ink)
                 Spacer(minLength: 0)
-                Door(icon: "xmark", help: "Close   esc") { browser.closeAssistant() }
+                Door(icon: "xmark", help: L("assistant.closeHelp")) { browser.closeAssistant() }
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
@@ -270,9 +270,9 @@ struct AssistantPanel: View {
             Rectangle().fill(Palette.hairline).frame(height: 1)
             HStack(spacing: 8) {
                 if drawn {
-                    Text("Ask about this page…").font(.system(size: 12.5)).foregroundStyle(Palette.faint)
+                    Text(L("assistant.askPrompt")).font(.system(size: 12.5)).foregroundStyle(Palette.faint)
                 } else {
-                    TextField("", text: $assistant.draft, prompt: Text("Ask about this page…").foregroundStyle(Palette.faint))
+                    TextField("", text: $assistant.draft, prompt: Text(L("assistant.askPrompt")).foregroundStyle(Palette.faint))
                         .textFieldStyle(.plain)
                         .font(.system(size: 12.5))
                         .foregroundStyle(Palette.ink)
@@ -283,7 +283,7 @@ struct AssistantPanel: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            Text("AI — may be wrong · \(assistant.place)")
+            Text(L("assistant.footer", assistant.place))
                 .font(.system(size: 10.5))
                 .foregroundStyle(Palette.faint)
                 .lineLimit(1)
@@ -304,10 +304,10 @@ struct AssistantPanel: View {
             } else if let trouble = assistant.trouble {
                 Text(trouble).font(.system(size: 12.5)).foregroundStyle(Palette.muted)
             } else if assistant.reading {
-                Text("Reading the page…").font(.system(size: 12.5)).foregroundStyle(Palette.muted)
+                Text(L("assistant.reading")).font(.system(size: 12.5)).foregroundStyle(Palette.muted)
             }
             if assistant.addressed, assistant.notice == nil {
-                caution("This page has text written for an AI to follow. The answer may have been steered by it.")
+                caution(L("assistant.injectionWarning"))
             }
             ForEach(assistant.turns) { turn in
                 TurnView(turn: turn).id(turn.id)
@@ -342,7 +342,7 @@ struct AssistantPanel: View {
 
     private func noticeCard(_ notice: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Answers from \(assistant.provider.name)")
+            Text(L("assistant.answersFrom", assistant.provider.name))
                 .font(.system(size: 12.5, weight: .medium))
                 .foregroundStyle(Palette.ink)
             Text(verbatim: notice)
@@ -350,8 +350,8 @@ struct AssistantPanel: View {
                 .foregroundStyle(Palette.muted)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 8) {
-                Pill("Continue", filled: true) { assistant.agree() }
-                Pill("Cancel") { browser.closeAssistant() }
+                Pill(L("assistant.continue"), filled: true) { assistant.agree() }
+                Pill(L("settings.ai.cancel")) { browser.closeAssistant() }
             }
         }
         .padding(12)
@@ -388,7 +388,7 @@ struct AssistantPanel: View {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Image(systemName: "exclamationmark.triangle")
                             .font(.system(size: 10, weight: .medium))
-                        Text(verbatim: "Not on the page: " + turn.strays.joined(separator: ", "))
+                        Text(L("assistant.notOnPage", turn.strays.joined(separator: ", ")))
                             .font(.system(size: 11.5))
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -417,18 +417,18 @@ struct AISettings: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Card {
-                Line("Use AI on pages", "Summarize a page, or ask about it, from the View menu. Nothing is sent until you ask") {
+                Line(L("settings.ai.use.title"), L("settings.ai.use.detail")) {
                     Switch(on: $prefs.ai)
                 }
             }
             if prefs.ai {
                 Card {
-                    Line("Where it runs", place) {
+                    Line(L("settings.ai.where.title"), place) {
                         if drawn {
-                            Stand(prefs.aiProvider.map { $0.isLocal ? "\($0.name), on this Mac" : $0.name } ?? "Choose…", menu: true)
+                            Stand(prefs.aiProvider.map { $0.isLocal ? "\($0.name), on this Mac" : $0.name } ?? L("settings.ai.choose"), menu: true)
                         } else {
                         Picker("", selection: Binding(get: { prefs.aiProvider }, set: { prefs.aiProvider = $0 })) {
-                            Text("Choose…").tag(AIProvider?.none)
+                            Text(L("settings.ai.choose")).tag(AIProvider?.none)
                             ForEach(AIProvider.allCases.filter { $0 != .thisMac || engine.available || prefs.aiProvider == .thisMac }) { provider in
                                 Text(provider == .thisMac ? provider.name : provider.isLocal ? "\(provider.name), on this Mac" : provider.name)
                                     .tag(AIProvider?.some(provider))
@@ -451,17 +451,17 @@ struct AISettings: View {
                 }
                 .onAppear(perform: refresh)
                 Card {
-                    Line("Forget every key", "Deletes them from this Mac's keychain. A key made by signing in with OpenRouter still works until you delete it on openrouter.ai") {
-                        Pill("Forget") {
+                    Line(L("settings.ai.forgetKeys.title"), L("settings.ai.forgetKeys.detail")) {
+                        Pill(L("settings.ai.forget")) {
                             AIKeys.forgetAll()
                             refresh()
-                            browser.announce("Keys forgotten")
+                            browser.announce(L("announce.keysForgotten"))
                         }
                     }
                 }
                 Card {
-                    Line("Extension Studio", "View › Extension Studio (⇧⌘E): describe a Chrome extension and it is generated, installed, and injected into matching pages. Needs macOS 15.4+") {
-                        Pill(browser.studioShowing ? "Hide" : "Open") {
+                    Line(L("settings.ai.studio.title"), L("settings.ai.studio.detail")) {
+                        Pill(browser.studioShowing ? L("settings.ai.hide") : L("settings.ai.open")) {
                             browser.tuning = false
                             browser.toggleStudio()
                         }
@@ -476,53 +476,53 @@ struct AISettings: View {
     private var onThisMac: some View {
         let size = ByteCountFormatter.string(fromByteCount: engine.downloadSize, countStyle: .file)
         if AIEngine.translated {
-            Line("Model", "Needs the Apple Silicon version of Search — this copy runs translated") { EmptyView() }
+            Line(L("settings.ai.model"), L("settings.ai.model.translated")) { EmptyView() }
         } else {
             switch engine.state {
             case .absent:
-                Line("Model", "\(AIEngine.model.name), downloaded once (\(size)) and checked. Nothing leaves this Mac") {
-                    Pill("Download", filled: true) { engine.install() }
+                Line(L("settings.ai.model"), L("settings.ai.model.downloadDetail", AIEngine.model.name, size)) {
+                    Pill(L("settings.ai.download"), filled: true) { engine.install() }
                 }
             case .downloading(let done):
-                Line("Model", "Downloading… \(Int(done * 100))%") {
-                    Pill("Cancel") { engine.cancelInstall() }
+                Line(L("settings.ai.model"), L("settings.ai.model.downloading", Int(done * 100))) {
+                    Pill(L("settings.ai.cancel")) { engine.cancelInstall() }
                 }
             case .preparing:
-                Line("Model", "Preparing it for this Mac — about twenty seconds, once") { EmptyView() }
+                Line(L("settings.ai.model"), L("settings.ai.model.preparing")) { EmptyView() }
             case .ready:
-                Line("Model", "\(AIEngine.model.name), on this Mac. Nothing leaves it") {
-                    Pill("Remove") { engine.remove() }
+                Line(L("settings.ai.model"), L("settings.ai.model.ready", AIEngine.model.name)) {
+                    Pill(L("settings.ai.remove")) { engine.remove() }
                 }
             case .failed(let why):
-                Line("Model", why) {
-                    Pill("Try Again") { engine.install() }
+                Line(L("settings.ai.model"), why) {
+                    Pill(L("settings.ai.tryAgain")) { engine.install() }
                 }
             }
         }
     }
 
     private var place: String {
-        guard let provider = prefs.aiProvider else { return "A provider you have a key with, or an app on this Mac" }
+        guard let provider = prefs.aiProvider else { return L("settings.ai.where.detail.empty") }
         return provider.isLocal
-            ? "Nothing leaves this Mac. Also in private tabs"
-            : "Your key, kept in this Mac's keychain, sent only to \(provider.host). Never from a private tab"
+            ? L("settings.ai.where.detail.local")
+            : L("settings.ai.where.detail.cloud", provider.host)
     }
 
     @ViewBuilder
     private func key(_ provider: AIProvider) -> some View {
         if let hint {
-            Line("Key", "\(hint), in this Mac's keychain") {
-                Pill("Forget") {
+            Line(L("settings.ai.key"), L("settings.ai.key.kept", hint)) {
+                Pill(L("settings.ai.forget")) {
                     AIKeys.forget(provider)
                     refresh()
                 }
             }
         } else if !AIKeys.available {
-            Line("Key", "This copy of Search can't keep keys safely — it isn't the signed release. An app on this Mac still works") { EmptyView() }
+            Line(L("settings.ai.key"), L("settings.ai.key.unavailable")) { EmptyView() }
         } else {
-            Line("Key", provider == .openRouter ? "Paste one, or sign in and OpenRouter makes one for you" : "Paste your API key") {
+            Line(L("settings.ai.key"), provider == .openRouter ? L("settings.ai.key.pasteOpenRouter") : L("settings.ai.key.paste")) {
                 HStack(spacing: 6) {
-                    SecureField("", text: $pasted, prompt: Text("Key").foregroundStyle(Palette.faint))
+                    SecureField("", text: $pasted, prompt: Text(L("settings.ai.key")).foregroundStyle(Palette.faint))
                         .textFieldStyle(.plain)
                         .font(.system(size: 12))
                         .frame(width: 130)
@@ -530,9 +530,9 @@ struct AISettings: View {
                         .padding(.vertical, 5)
                         .background(Palette.wash, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                         .onSubmit { save(provider) }
-                    Pill("Save") { save(provider) }
+                    Pill(L("settings.ai.save")) { save(provider) }
                     if provider == .openRouter {
-                        Pill("Sign In…") {
+                        Pill(L("settings.ai.signIn")) {
                             browser.tuning = false
                             AISignIn.start(in: browser)
                         }
@@ -543,7 +543,7 @@ struct AISettings: View {
     }
 
     private func cloudModel(_ provider: AIProvider) -> some View {
-        Line("Model", "Leave empty for \(provider.defaultModel)") {
+        Line(L("settings.ai.model"), L("settings.ai.model.default", provider.defaultModel)) {
             if drawn {
                 Stand(prefs.aiModels[provider.rawValue].flatMap { $0.isEmpty ? nil : $0 } ?? provider.defaultModel, width: 170)
             } else {
@@ -582,13 +582,13 @@ struct AISettings: View {
     @ViewBuilder
     private func localModel(_ provider: AIProvider) -> some View {
         if models.isEmpty {
-            Line("Model", looking ? "Asking \(provider.name)…" : "\(provider.name) isn't running, or has no model yet") {
-                Pill("Look Again") { refresh() }
+            Line(L("settings.ai.model"), looking ? L("settings.ai.model.asking", provider.name) : L("settings.ai.model.none", provider.name)) {
+                Pill(L("settings.ai.lookAgain")) { refresh() }
             }
         } else {
-            Line("Model", "From \(provider.name) on this Mac") {
+            Line(L("settings.ai.model"), L("settings.ai.model.from", provider.name)) {
                 Picker("", selection: Binding(get: { prefs.aiModel(for: provider) }, set: { prefs.setAIModel($0, for: provider) })) {
-                    Text("Choose…").tag("")
+                    Text(L("settings.ai.choose")).tag("")
                     ForEach(models, id: \.self) { Text($0).tag($0) }
                 }
                 .labelsHidden()
@@ -602,9 +602,9 @@ struct AISettings: View {
         let key = pasted
         pasted = ""
         switch AIKeys.save(key, for: provider) {
-        case .kept: browser.announce("Key kept in the keychain")
-        case .unavailable: browser.announce("This copy of Search can't keep keys")
-        case .failed: browser.announce("The key wasn't kept")
+        case .kept: browser.announce(L("announce.keyKept"))
+        case .unavailable: browser.announce(L("announce.keyUnavailable"))
+        case .failed: browser.announce(L("announce.keyFailed"))
         }
         refresh()
     }

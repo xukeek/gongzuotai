@@ -455,16 +455,16 @@ struct Helm: View {
             let back = !tab.isBlank && tab.canGoBack
             let forward = !tab.isBlank && tab.canGoForward
             HStack(spacing: 4) {
-                Door(icon: "chevron.left", help: "Back   ⌘[") { browser.back() }
+                Door(icon: "chevron.left", help: L("chrome.help.backTip")) { browser.back() }
                     .disabled(!back)
                     .opacity(back ? 1 : 0.3)
-                Door(icon: "chevron.right", help: "Forward   ⌘]") { browser.forward() }
+                Door(icon: "chevron.right", help: L("chrome.help.forwardTip")) { browser.forward() }
                     .disabled(!forward)
                     .opacity(forward ? 1 : 0.3)
                 // Reload, or stop while it is still coming.
                 Door(
                     icon: tab.loading ? "xmark" : "arrow.clockwise",
-                    help: tab.loading ? "Stop   ⌘." : "Reload   ⌘R"
+                    help: tab.loading ? L("chrome.help.stopTip") : L("chrome.help.reloadTip")
                 ) {
                     if tab.loading { tab.stop() } else { browser.reload() }
                 }
@@ -621,7 +621,7 @@ private struct TabPill: View {
                     Image(systemName: "record.circle")
                         .font(.system(size: 10))
                         .foregroundStyle(colour.opacity(0.8))
-                        .help("Recording")
+                        .help(L("chrome.tab.recording"))
                 }
                 Text(tab.label)
                     .font(.system(size: 12.5))
@@ -953,8 +953,8 @@ struct TabMenu: View {
 
     var body: some View {
         if browser.prefs.usesTabGroups && tab.pin == nil && !tab.shy && !tab.bench {
-            Menu("Move to Group") {
-                Button("New Group") { browser.addTabGroup(containing: tab) }
+            Menu(L("tabs.moveToGroup")) {
+                Button(L("chrome.group.new")) { browser.addTabGroup(containing: tab) }
                 if !browser.tabGroups.isEmpty { Divider() }
                 ForEach(browser.tabGroups) { group in
                     Button(group.name) { browser.move(tab, toGroup: group.id) }
@@ -962,20 +962,20 @@ struct TabMenu: View {
                 }
                 if tab.groupID != nil {
                     Divider()
-                    Button("Remove from Group") { browser.move(tab, toGroup: nil) }
+                    Button(L("tabs.removeFromGroup")) { browser.move(tab, toGroup: nil) }
                 }
             }
         }
         if tab.pin == nil {
-            Button("Pin") { browser.pin(tab) }
+            Button(L("menu.tabs.pin")) { browser.pin(tab) }
                 .disabled(tab.isBlank || tab.shy)
         } else {
-            Button("Change Letter") { browser.editLetter(tab) }
-            Button("Unpin") { browser.unpin(tab) }
+            Button(L("menu.tabs.changeLetter")) { browser.editLetter(tab) }
+            Button(L("menu.tabs.unpin")) { browser.unpin(tab) }
         }
         if browser.prefs.usesSpaces, !tab.bench,
            tab.address.flatMap({ Browser.extensionHost(of: $0) }) == nil {
-            Menu("Move to Space") {
+            Menu(L("tabs.moveToSpace")) {
                 ForEach(browser.spaces.filter { $0.id != browser.spaceID }) { space in
                     Button {
                         browser.move(tab, toSpace: space.id)
@@ -984,7 +984,7 @@ struct TabMenu: View {
                     }
                 }
                 if browser.spaces.count > 1 { Divider() }
-                Button("New Space…") {
+                Button(L("chrome.space.new")) {
                     browser.askForSpace { space in
                         browser.move(tab, toSpace: space.id) {
                             browser.switchSpace(to: space.id)
@@ -992,23 +992,23 @@ struct TabMenu: View {
                     }
                 }
             }
-            .help("Pages moved to a Space with different sign-ins reopen there.")
+            .help(L("tabs.spaceMoveHelp"))
         }
         if browser.prefs.splitView {
             if browser.split(for: tab) != nil {
-                Button("Swap Pages") {
+                Button(L("tabs.swapSplit")) {
                     browser.focusPane(tab)
                     browser.swapSplit()
                 }
-                Button("Separate Split Tabs") { browser.detachSplit(tab) }
-                Button("Close Both Pages") {
+                Button(L("tabs.separateSplit")) { browser.detachSplit(tab) }
+                Button(L("menu.tabs.closeBoth")) {
                     browser.focusPane(tab)
                     browser.closeSplit()
                 }
             } else {
                 // Beside the page on screen; on that page itself, an empty
                 // page beside it.
-                Button("Open in Split View") { browser.openInSplit(tab) }
+                Button(L("tabs.openSplit")) { browser.openInSplit(tab) }
                     .disabled(tab.bench)
             }
         }
@@ -1016,11 +1016,11 @@ struct TabMenu: View {
             // Another window, or a new one (see Browser.moveToWindow).
             let others = Browsers.all.filter { $0 !== browser && $0.isOpen && $0.extensionPopup == nil }
             if others.isEmpty {
-                Button("Move to New Window") { browser.moveToWindow(tab, nil) }
+                Button(L("tabs.moveToNewWindow")) { browser.moveToWindow(tab, nil) }
                     .disabled(browser.tabs.count < 2)
             } else {
-                Menu("Move to Window") {
-                    Button("New Window") { browser.moveToWindow(tab, nil) }
+                Menu(L("tabs.moveToWindow")) {
+                    Button(L("tabs.newWindow")) { browser.moveToWindow(tab, nil) }
                         .disabled(browser.tabs.count < 2)
                     Divider()
                     ForEach(Array(others.enumerated()), id: \.offset) { _, other in
@@ -1030,45 +1030,45 @@ struct TabMenu: View {
             }
         }
         Divider()
-        Button("Rename") { browser.beginTabRename(tab) }
-        Button("Duplicate") {
+        Button(L("tabs.rename")) { browser.beginTabRename(tab) }
+        Button(L("tabs.duplicate")) {
             browser.select(tab)
             browser.duplicate()
         }
         .disabled(tab.isBlank)
         // The card a click on the tab you are on shows under its address.
-        Button("Site Information…") {
+        Button(L("tabs.siteInformation")) {
             if browser.activeID != tab.id { browser.select(tab) }
             browser.beginTabEdit(tab)
         }
         .disabled(tab.isBlank || tab.address == nil || tab.pin != nil)
-        Button("Copy Address") {
+        Button(L("tabs.copyAddress")) {
             browser.select(tab)
             browser.copyAddress()
         }
         .disabled(tab.isBlank)
-        Button("Copy as Markdown Link") {
+        Button(L("tabs.copyMarkdown")) {
             browser.select(tab)
             browser.copyMarkdownLink()
         }
         .disabled(tab.isBlank)
-        Button(tab.muted ? "Unmute Tab" : "Mute Tab") { tab.toggleMute() }
+        Button(tab.muted ? L("tabs.unmuteTab") : L("tabs.muteTab")) { tab.toggleMute() }
         // Its page let go of now, as it would be after half an hour unseen:
         // the row keeps its title and picture, and it loads again when gone
         // to. Not the tab on screen, nor one that has to stay awake (#310).
-        Button("Put to Sleep") {
+        Button(L("tabs.putToSleep")) {
             browser.sleep(tab) { outcome in
                 if outcome != "asleep" { browser.announce("Stays awake: \(outcome)") }
             }
         }
         .disabled(browser.awake(because: tab) != nil)
         Divider()
-        Button("Close Tab", action: close)
-        Button("Close Other Tabs") { browser.closeOthers(but: tab) }
+        Button(L("file.closeTab"), action: close)
+        Button(L("tabs.closeOthers")) { browser.closeOthers(but: tab) }
             .disabled(browser.tabs.count < 2)
         // ⌘⇧T, and the History menu's Recently Closed, where few think to
         // look for it: here too, where tabs are closed.
-        Button("Reopen Closed Tab") { browser.reopen() }
+        Button(L("file.reopen")) { browser.reopen() }
             .disabled(browser.ghosts.isEmpty)
     }
 }

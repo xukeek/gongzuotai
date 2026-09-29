@@ -460,7 +460,7 @@ struct SideBar: View {
     private static let footHeight: CGFloat = 26 + 10
 
     private var newTab: some View {
-        Quiet(icon: "plus", title: "New tab", height: SideBar.row) { browser.newTab() }
+        Quiet(icon: "plus", title: L("chrome.tab.new"), height: SideBar.row) { browser.newTab() }
             .padding(.top, SideBar.gap)
     }
 
@@ -615,7 +615,7 @@ private struct SideRow: View {
                     Image(systemName: "record.circle")
                         .font(.system(size: 10))
                         .foregroundStyle(colour.opacity(0.8))
-                        .help("Recording")
+                        .help(L("chrome.tab.recording"))
                 }
                 Text(tab.label)
                     .font(.system(size: 12.5))
@@ -788,7 +788,7 @@ struct Speaker: View {
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .help(tab.muted ? "Unmute Tab" : "Mute Tab")
+        .help(tab.muted ? L("tabs.unmuteTab") : L("tabs.muteTab"))
         .animation(Motion.quick, value: hovering)
     }
 }

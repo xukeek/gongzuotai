@@ -11,7 +11,7 @@ struct ExtensionsPage: View {
             Installer(browser: browser, extensions: .shared)
         } else {
             Card {
-                Line("Chrome extensions", "Need macOS 15.4 or later — the version whose WebKit can run them.") { EmptyView() }
+                Line(L("settings.extensions.unsupported.title"), L("settings.extensions.unsupported.detail")) { EmptyView() }
             }
         }
     }
@@ -27,11 +27,11 @@ struct ExtensionsPage: View {
                 Card {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 8) {
-                            Text("Add from the Chrome Web Store")
+                            Text(L("settings.extensions.addFromStore"))
                                 .font(.system(size: 13))
                                 .foregroundStyle(Palette.ink)
                             Spacer(minLength: 8)
-                            Pill("Open the Store") {
+                            Pill(L("settings.extensions.openStore")) {
                                 browser.tuning = false
                                 browser.open(Browser.webStore, foreground: true)
                             }
@@ -39,7 +39,7 @@ struct ExtensionsPage: View {
                         HStack(spacing: 8) {
                             ZStack(alignment: .leading) {
                                 if link.isEmpty {
-                                    Text("Paste a link to an extension, or its id")
+                                    Text(L("settings.extensions.chromeStore.detail"))
                                         .foregroundStyle(Palette.muted.opacity(0.8))
                                 }
                                 TextField("", text: $link)
@@ -54,11 +54,11 @@ struct ExtensionsPage: View {
                             if extensions.busy != nil {
                                 Ring(size: 12)
                             } else {
-                                Pill("Add", filled: true, action: add)
+                                Pill(L("settings.general.add"), filled: true, action: add)
                                     .disabled(Crx.id(in: link) == nil)
                             }
                         }
-                        Text("Or find it in the store and press Add to Search on its page.")
+                        Text(L("settings.extensions.chromeStore.footer"))
                             .font(.system(size: 11.5))
                             .foregroundStyle(Palette.muted)
                             .fixedSize(horizontal: false, vertical: true)
@@ -67,8 +67,8 @@ struct ExtensionsPage: View {
                 }
 
                 Card {
-                    Line("From another browser", "What Chrome, Arc, Brave and the others added from the Chrome Web Store — installed fresh from the store, you say yes to each one") {
-                        Pill("Bring them over…") {
+                    Line(L("settings.extensions.bringOver.title"), L("settings.extensions.bringOver.detail")) {
+                        Pill(L("settings.extensions.bringOver.pill")) {
                             browser.tuning = false
                             browser.bringingExtensions = true
                             browser.bringingIn = ""
@@ -77,7 +77,7 @@ struct ExtensionsPage: View {
                 }
 
                 Card {
-                    Line("Allow on private tabs", "Off by default - a private tab keeps nothing, extensions included") {
+                    Line(L("settings.extensions.allowPrivate"), L("settings.extensions.allowPrivate.detail")) {
                         Switch(on: Binding(
                             get: { browser.prefs.extensionsInPrivate },
                             set: { browser.prefs.extensionsInPrivate = $0 }
@@ -86,7 +86,7 @@ struct ExtensionsPage: View {
                 }
 
                 if extensions.installed.isEmpty {
-                    Card { Nothing("No extensions yet.") }
+                    Card { Nothing(L("settings.extensions.none")) }
                 } else {
                     Card {
                         ForEach(Array(extensions.installed.enumerated()), id: \.element.id) { index, item in
@@ -99,8 +99,8 @@ struct ExtensionsPage: View {
                 Recorders()
 
                 Card {
-                    Line("Load an unpacked extension", "A folder with a manifest.json — your own, or one exported from another browser. Reload picks up what you've changed in it since.") {
-                        Pill("Choose…") { extensions.installFolder() }
+                    Line(L("settings.extensions.fromFolder.title"), L("settings.extensions.fromFolder.detailLong")) {
+                        Pill(L("settings.extensions.choose")) { extensions.installFolder() }
                     }
                 }
             }
@@ -125,8 +125,8 @@ struct ExtensionsPage: View {
                     VStack(spacing: 0) {
                         ForEach(Array(ids.enumerated()), id: \.element) { index, id in
                             if index > 0 { Rule() }
-                            Line(Browser.extensionName(id), "Can record your screen — macOS asks what to share each time") {
-                                Pill("Remove") { ExtensionCapture.forget(id) }
+                            Line(Browser.extensionName(id), L("settings.extensions.capture.detail")) {
+                                Pill(L("settings.extensions.remove")) { ExtensionCapture.forget(id) }
                             }
                         }
                     }
@@ -165,23 +165,23 @@ struct ExtensionsPage: View {
                 }
                 Spacer(minLength: 8)
                 if hovering {
-                    Quick(item.pinned == true ? "Unpin" : "Pin to Toolbar") {
+                    Quick(item.pinned == true ? L("settings.extensions.unpin") : L("settings.extensions.pin")) {
                         extensions.setPinned(item.id, !(item.pinned ?? false))
                     }
                     if context?.overrideNewTabPageURL != nil {
                         let on = Store.settings.object(forKey: "extensions.newtab.\(item.id)") as? Bool == true
-                        Quick(on ? "Stop in New Tabs" : "Show in New Tabs") {
+                        Quick(on ? L("settings.extensions.stopNewTabs") : L("settings.extensions.showNewTabs")) {
                             Store.settings.set(!on, forKey: "extensions.newtab.\(item.id)")
                             extensions.objectWillChange.send()
                         }
                     }
                     if item.source != nil || !item.fromStore {
-                        Quick("Reload") { extensions.reload(item.id) }
+                        Quick(L("settings.extensions.reload")) { extensions.reload(item.id) }
                     }
                     if context?.optionsPageURL != nil {
-                        Quick("Options") { extensions.openOptions(item.id) }
+                        Quick(L("settings.extensions.options")) { extensions.openOptions(item.id) }
                     }
-                    Quick("Remove", tint: .red.opacity(0.75)) { extensions.remove(item.id) }
+                    Quick(L("settings.extensions.remove"), tint: .red.opacity(0.75)) { extensions.remove(item.id) }
                 }
                 Switch(on: Binding(get: { item.enabled }, set: { extensions.setEnabled(item.id, $0) }))
             }
@@ -194,16 +194,21 @@ struct ExtensionsPage: View {
         /// Where it was loaded from, by the folder's name — the whole path
         /// is in the tooltip.
         private var folder: String {
-            item.source.map { "From “\(URL(fileURLWithPath: $0).lastPathComponent)”" } ?? "From a folder"
+            item.source.map { L("settings.extensions.fromNamedFolder", URL(fileURLWithPath: $0).lastPathComponent) }
+                ?? L("settings.extensions.fromAFolder")
         }
 
         private func detail(_ context: WKWebExtensionContext?) -> String {
-            var parts = ["Version \(item.version)", item.fromStore ? "Chrome Web Store" : folder]
-            if item.enabled, context == nil { parts.append("couldn't start") }
+            var parts = [L("settings.extensions.version", item.version),
+                         item.fromStore ? L("settings.extensions.chromeWebStore") : folder]
+            if item.enabled, context == nil { parts.append(L("settings.extensions.couldntStart")) }
             if context?.overrideNewTabPageURL != nil, Store.settings.object(forKey: "extensions.newtab.\(item.id)") as? Bool == true {
-                parts.append("shows in new tabs")
+                parts.append(L("settings.extensions.showsInNewTabs"))
             }
-            if let errors = context?.errors, !errors.isEmpty { parts.append("\(errors.count) warning\(errors.count == 1 ? "" : "s")") }
+            if let errors = context?.errors, !errors.isEmpty {
+                let n = Int64(errors.count)
+                parts.append(n == 1 ? L("settings.extensions.warning", n) : L("settings.extensions.warnings", n))
+            }
             return parts.joined(separator: " · ")
         }
     }
@@ -234,13 +239,13 @@ struct StoreOffer: View {
                     Image(systemName: "puzzlepiece.extension")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(Palette.muted)
-                    Text(extensions.busy == id ? "Adding…" : "Add this extension to Search")
+                    Text(extensions.busy == id ? L("chrome.storeOffer.adding") : L("chrome.storeOffer.add"))
                         .font(.system(size: 12.5))
                         .foregroundStyle(Palette.ink)
                     if extensions.busy == id {
                         Ring(size: 10)
                     } else {
-                        Button("Add") { extensions.install(from: id) }
+                        Button(L("settings.general.add")) { extensions.install(from: id) }
                             .buttonStyle(.plain)
                             .font(.system(size: 12))
                             .foregroundStyle(Palette.ground)

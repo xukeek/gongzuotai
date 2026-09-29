@@ -21,15 +21,15 @@ struct SettingsPanel: View {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .general: return "General"
-            case .tabs: return "Tabs"
-            case .shortcuts: return "Shortcuts"
-            case .extensions: return "Extensions"
-            case .passwords: return "Passwords"
-            case .downloads: return "Downloads"
-            case .privacy: return "Privacy"
-            case .ai: return "AI"
-            case .about: return "About"
+            case .general: return L("settings.page.general")
+            case .tabs: return L("settings.page.tabs")
+            case .shortcuts: return L("settings.page.shortcuts")
+            case .extensions: return L("settings.page.extensions")
+            case .passwords: return L("settings.page.passwords")
+            case .downloads: return L("settings.page.downloads")
+            case .privacy: return L("settings.page.privacy")
+            case .ai: return L("settings.page.ai")
+            case .about: return L("settings.page.about")
             }
         }
         var icon: String {
@@ -50,6 +50,10 @@ struct SettingsPanel: View {
     private static let rail: CGFloat = 168
     private static let width: CGFloat = 660
     private static let height: CGFloat = 500
+
+    private func sideEdge(_ position: SidebarPosition) -> String {
+        position == .left ? L("settings.tabs.edge.left") : L("settings.tabs.edge.right")
+    }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -72,7 +76,7 @@ struct SettingsPanel: View {
 
     private var pages: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Settings")
+            Text(L("settings.title"))
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Palette.ink)
                 .padding(.horizontal, 10)
@@ -130,7 +134,7 @@ struct SettingsPanel: View {
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(Palette.ink)
                 Spacer()
-                Door(icon: "xmark", help: "Done   esc") { browser.tuning = false }
+                Door(icon: "xmark", help: L("settings.done")) { browser.tuning = false }
             }
             .padding(.bottom, 16)
 
@@ -164,8 +168,8 @@ struct SettingsPanel: View {
     private var general: some View {
         Card {
             Line(
-                "Open links from other apps",
-                isDefault ? "Search is the default browser on this Mac" : "Mail, Slack and the rest still send links elsewhere"
+                L("settings.general.openLinks.title"),
+                isDefault ? L("settings.general.openLinks.detailDefault") : L("settings.general.openLinks.detailOther")
             ) {
                 if isDefault {
                     Image(systemName: "checkmark")
@@ -173,10 +177,10 @@ struct SettingsPanel: View {
                         .foregroundStyle(Palette.ink)
                         .frame(width: 24)
                 } else {
-                    Pill("Make default", filled: true) {
+                    Pill(L("settings.general.makeDefault"), filled: true) {
                         Links.becomeDefault { worked in
                             isDefault = Links.isDefault
-                            browser.announce(worked && isDefault ? "Links now open here" : "macOS didn't change it")
+                            browser.announce(worked && isDefault ? L("announce.linksNowOpenHere") : L("announce.macosDidntChange"))
                         }
                     }
                 }
@@ -184,14 +188,14 @@ struct SettingsPanel: View {
             Rule()
             // Coming from another browser, now or any time later: the same
             // sheet as File › Bring Things Over… and the Welcome's.
-            Line("Bring things over", "Bookmarks, history, passwords and extensions from another browser on this Mac, or from a file it exported") {
-                Pill("Bring Things Over…") {
+            Line(L("settings.general.bringThings.title"), L("settings.general.bringThings.detail")) {
+                Pill(L("settings.general.bringThings.pill")) {
                     browser.tuning = false
                     browser.bringingIn = ""
                 }
             }
             Rule()
-            Line("Search with", searchDetail) {
+            Line(L("settings.general.searchWith.title"), searchDetail) {
                 Picker("", selection: $prefs.engine) {
                     ForEach(Engine.allCases) { engine in
                         Text(engine.title).tag(engine)
@@ -219,13 +223,13 @@ struct SettingsPanel: View {
                 .padding(.bottom, 11)
             }
             Rule()
-            Line("Site shortcuts", keywordDetail) {
+            Line(L("settings.general.siteShortcuts.title"), keywordDetail) {
                 if draft == nil {
-                    Pill("Add") { draft = Keyword() }
+                    Pill(L("settings.general.add")) { draft = Keyword() }
                 } else {
                     HStack(spacing: 6) {
-                        Pill("Cancel") { draft = nil }
-                        Pill("Save", filled: true) { saveDraft() }
+                        Pill(L("settings.general.cancel")) { draft = nil }
+                        Pill(L("settings.general.save"), filled: true) { saveDraft() }
                             .disabled(draftProblem != nil)
                             .opacity(draftProblem == nil ? 1 : 0.4)
                     }
@@ -281,64 +285,64 @@ struct SettingsPanel: View {
                 .padding(.bottom, 6)
             }
             Rule()
-            Line("Appearance", "Light, dark, or whatever the Mac is doing — pages follow it too") {
+            Line(L("settings.general.appearance.title"), L("settings.general.appearance.detail")) {
                 Segmented(options: Look.allCases.map { ($0, $0.title) }, selection: $prefs.look)
             }
             Rule()
-            Line("Page zoom", "Where every site starts. ⌘+ and ⌘− are still remembered for each site.") {
+            Line(L("settings.general.pageZoom.title"), L("settings.general.pageZoom.detail")) {
                 // The number itself takes it back to 100%.
                 Steps(stops: Preferences.zooms, value: $prefs.pageZoom, home: 1) { "\(Int(($0 * 100).rounded()))%" }
             }
             Rule()
-            Line("Correct spelling as you type", "macOS's autocorrect inside pages — the one that capitalises for you") {
+            Line(L("settings.general.autocorrect.title"), L("settings.general.autocorrect.detail")) {
                 Switch(on: $prefs.autocorrect)
             }
             Rule()
-            Line("Peek at a link with a shift-click", "Its page opens in a panel over the one you're reading. Escape puts it away; the other button keeps it as a tab") {
+            Line(L("settings.general.peek.title"), L("settings.general.peek.detail")) {
                 Switch(on: $prefs.peeksLinks)
             }
             Rule()
-            Line("Open links from other apps in a small window", "To read and close, or keep with Open in Search (⌘O)") {
+            Line(L("settings.general.littleLinks.title"), L("settings.general.littleLinks.detail")) {
                 Switch(on: $prefs.littleLinks)
             }
             Rule()
-            Line("Address bar commands", "A word like \"settings\" or \"new tab\", typed alone in the address field, goes there instead of searching for it") {
+            Line(L("settings.general.commandBar.title"), L("settings.general.commandBar.detail")) {
                 Switch(on: $prefs.commandBar)
             }
             Rule()
-            Line("Show where links go", "Point at a link and its address shows at the bottom of the page") {
+            Line(L("settings.general.showsLinks.title"), L("settings.general.showsLinks.detail")) {
                 Switch(on: $prefs.showsLinks)
             }
             Rule()
-            Line("Scroll with the middle button", "Click the wheel on a page, then move the mouse up or down to scroll, as on Windows. Click again to stop") {
+            Line(L("settings.general.autoScroll.title"), L("settings.general.autoScroll.detail")) {
                 Switch(on: $prefs.autoScroll)
             }
             Rule()
-            Line("Pages at 120 Hz", "Animations and scrolling in pages at up to 120 frames a second on a screen that can, instead of 60 as in Safari. Uses more battery. Open tabs follow when reloaded") {
+            Line(L("settings.general.fastPages.title"), L("settings.general.fastPages.detail")) {
                 Switch(on: $prefs.fastPages)
             }
             Rule()
-            Line("Hold a swipe to pick from history", "Swipe back or forward and keep your fingers down: the pages that way appear, and moving up or down picks one to go to") {
+            Line(L("settings.general.holdsHistory.title"), L("settings.general.holdsHistory.detail")) {
                 Switch(on: $prefs.holdsHistory)
             }
             Rule()
-            Line("Flick the floating video to a corner", "Two fingers on it send it to the corner or edge they point at, instead of pushing it along; a strong swipe at the side of the screen it is against tucks it in there, a sliver left to bring it back by. Dragging still puts it anywhere") {
+            Line(L("settings.general.floatFlicks.title"), L("settings.general.floatFlicks.detail")) {
                 Switch(on: $prefs.floatFlicks)
             }
             Rule()
-            Line("Videos wait for a click", "Videos don't start by themselves, even without sound; they play when you press play. Tabs already open follow once closed and opened again, or after they've slept") {
+            Line(L("settings.general.waitsForPlay.title"), L("settings.general.waitsForPlay.detail")) {
                 Switch(on: $prefs.waitsForPlay)
             }
             Rule()
-            Line("Float the video when you switch tabs", "A video playing on YouTube and the like comes out into its floating window when you go to another tab, and back when you return. ⇧⌘P still floats one by hand") {
+            Line(L("settings.general.floatsOnLeave.title"), L("settings.general.floatsOnLeave.detail")) {
                 Switch(on: $prefs.floatsOnLeave)
             }
             Rule()
-            Line("Float the video when you switch apps", "A video playing on the site you're on comes out into its floating window as another app comes to the front, and goes back into its tab when you return") {
+            Line(L("settings.general.floatsAway.title"), L("settings.general.floatsAway.detail")) {
                 Switch(on: $prefs.floatsAway)
             }
             Rule()
-            Line("Let a script drive Search", "A local socket for testing. Its tabs open beside yours with a flask on them and never take over — see ./bench") {
+            Line(L("settings.general.bench.title"), L("settings.general.bench.detail")) {
                 Switch(on: $prefs.bench)
             }
         }
@@ -353,12 +357,16 @@ struct SettingsPanel: View {
 
     private var keywordDetail: String {
         guard let draft else {
-            return "A word before your search goes straight to that site, whatever engine you've picked — \"yt cats\" to YouTube"
+            return L("settings.general.siteShortcuts.detail")
         }
         if draft.keyword.isEmpty, draft.template.isEmpty {
-            return "A word, then the site's search address with %s where the words go"
+            return L("settings.general.siteShortcuts.detailEmpty")
         }
-        return draftProblem ?? "\(draft.keyword.trimmingCharacters(in: .whitespacesAndNewlines)) will search \(draft.name)"
+        return draftProblem ?? L(
+            "settings.general.siteShortcuts.detailDraft",
+            draft.keyword.trimmingCharacters(in: .whitespacesAndNewlines),
+            draft.name
+        )
     }
 
     private func saveDraft() {
@@ -371,11 +379,11 @@ struct SettingsPanel: View {
     }
 
     private var searchDetail: String {
-        guard prefs.engine == .custom else { return "Where words that aren't an address go" }
+        guard prefs.engine == .custom else { return L("settings.general.searchWith.detail") }
         guard Engine.accepts(prefs.customEngine) else {
-            return "An http or https address with %s where the words go. Until then, Google"
+            return L("settings.general.searchWith.detailCustomBad")
         }
-        return "Words go to \(prefs.engine.name(custom: prefs.customEngine))"
+        return L("settings.general.searchWith.detailCustom", prefs.engine.name(custom: prefs.customEngine))
     }
 
     // MARK: - tabs
@@ -385,7 +393,7 @@ struct SettingsPanel: View {
     /// move, and the line isn't shown.
     private var toolbar: some View {
         Card {
-            Line("Back, forward and reload on the left", "Beside the window's buttons, before the tabs") {
+            Line(L("settings.tabs.navLeft.title"), L("settings.tabs.navLeft.detail")) {
                 Switch(on: $prefs.navigationLeft)
             }
         }
@@ -393,7 +401,7 @@ struct SettingsPanel: View {
 
     private var tabs: some View {
         Card {
-            Line("Tabs in a sidebar", "Down the \(prefs.sidePosition.rawValue) instead of across the top. Pull its edge to make it wider; double-click the edge to reset.") {
+            Line(L("settings.tabs.sidebar.title"), L("settings.tabs.sidebar.detail", sideEdge(prefs.sidePosition))) {
                 Switch(on: Binding(
                     get: { prefs.sidebar },
                     set: { on in withAnimation(Motion.glide) { prefs.sidebar = on } }
@@ -401,52 +409,52 @@ struct SettingsPanel: View {
             }
             if prefs.sidebar {
                 Rule()
-                Line("Sidebar position", "Tabs down the \(prefs.sidePosition.rawValue) edge of the window") {
+                Line(L("settings.tabs.position.title"), L("settings.tabs.position.detail", sideEdge(prefs.sidePosition))) {
                     Segmented(options: SidebarPosition.allCases.map { ($0, $0.title) }, selection: $prefs.sidePosition)
                 }
                 Rule()
-                Line("Hide the sidebar until the pointer reaches the edge", "The page takes the whole window; push against its \(prefs.sidePosition.rawValue) edge for the tabs. ⌘S keeps them out.") {
+                Line(L("settings.tabs.sideHides.title"), L("settings.tabs.sideHides.detail", sideEdge(prefs.sidePosition))) {
                     Switch(on: $prefs.sideHides)
                 }
             }
             Rule()
-            Line("Tabs show", "Beside the title, and on a pinned square") {
+            Line(L("settings.tabs.glyph.title"), L("settings.tabs.glyph.detail")) {
                 Segmented(options: Glyph.allCases.map { ($0, $0.title) }, selection: $prefs.glyph)
             }
             Rule()
-            Line("Show the bookmarks bar", "Your bookmarks in a row above the page, folders opening as menus. It folds away with the tabs") {
+            Line(L("settings.tabs.bookmarksBar.title"), L("settings.tabs.bookmarksBar.detail")) {
                 Switch(on: $prefs.bookmarksBar)
             }
             Rule()
-            Line("Show how far you've read", "The tab you're on fills with grey as you scroll down the page") {
+            Line(L("settings.tabs.reading.title"), L("settings.tabs.reading.detail")) {
                 Switch(on: $prefs.showsReading)
             }
             Rule()
-            Line("Sleep tabs you aren't using", "After half an hour away they come back where you left them. Pinned tabs, sound, calls and anything typed stay awake.") {
+            Line(L("settings.tabs.sleep.title"), L("settings.tabs.sleep.detail")) {
                 Switch(on: $prefs.sleepsTabs)
             }
             Rule()
-            Line("Load background tabs when you go to them", "A link opened behind the page, with ⌘-click or the middle button, or a batch of links from another app, waits until you go to its tab. ⇧⌘-click still takes you there at once.") {
+            Line(L("settings.tabs.lazy.title"), L("settings.tabs.lazy.detail")) {
                 Switch(on: $prefs.lazyTabs)
             }
             Rule()
-            Line("Search a site from the address field", "Type the start of a site's name, like red or yout, then Tab, and what you type next searches that site. Sites you visit that offer a search join the list.") {
+            Line(L("settings.tabs.siteSearch.title"), L("settings.tabs.siteSearch.detail")) {
                 Switch(on: $prefs.searchesSites)
             }
             Rule()
-            Line("Start with a fresh window", "Each time Search opens, your pinned tabs are there and last time's other tabs aren't.") {
+            Line(L("settings.tabs.fresh.title"), L("settings.tabs.fresh.detail")) {
                 Switch(on: $prefs.startsFresh)
             }
             Rule()
-            Line("Spaces", "Separate sets of tabs, signed in where the others are or starting afresh, switched with ⌃1–⌃9, two fingers sideways over the column, or the space's icon. Mission Control's own ⌃1–⌃9, if you turned them on, take those keys first.") {
+            Line(L("settings.tabs.spaces.title"), L("settings.tabs.spaces.detail")) {
                 Switch(on: $prefs.usesSpaces)
             }
             Rule()
-            Line("Tab groups", "Named sections in the sidebar. Right-click a tab to start a group; click its heading to hide or show its tabs.") {
+            Line(L("settings.tabs.groups.title"), L("settings.tabs.groups.detail")) {
                 Switch(on: $prefs.usesTabGroups)
             }
             Rule()
-            Line("Split View", "Show two tabs side by side. Drag a tab onto a page to pair them.") {
+            Line(L("settings.tabs.split.title"), L("settings.tabs.split.detail")) {
                 Switch(on: $prefs.splitView)
             }
         }
@@ -457,52 +465,51 @@ struct SettingsPanel: View {
     /// Says so when a password manager extension has taken the saving over.
     private var savingDetail: String {
         if #available(macOS 15.4, *), let name = Extensions.shared.passwordSavingTakenBy {
-            return "\(name) does the saving — it asked Search not to offer"
+            return L("settings.passwords.offer.taken", name)
         }
-        return "Asked once per site, never again for a site you refuse"
+        return L("settings.passwords.offer.detail")
+    }
+
+    private var passkeysDetail: String {
+        if !prefs.passkeysPossible { return L("settings.passwords.passkeys.noEntitlement") }
+        if Passkeys.access == .denied { return L("settings.passwords.passkeys.denied") }
+        return L("settings.passwords.passkeys.ok")
     }
 
     private var passwords: some View {
         VStack(alignment: .leading, spacing: 18) {
             Card {
-                Line("Your passwords", "In the macOS keychain, shown with Touch ID") {
-                    Pill("Open…") {
+                Line(L("settings.passwords.yours.title"), L("settings.passwords.yours.detail")) {
+                    Pill(L("settings.passwords.open")) {
                         browser.tuning = false
                         browser.managing = true
                     }
                 }
                 Rule()
-                Line("Offer to save passwords", savingDetail) {
+                Line(L("settings.passwords.offer.title"), savingDetail) {
                     Switch(on: $prefs.savesPasswords)
                 }
                 Rule()
-                Line("Fill in sign-ins", "Click a sign-in box and the accounts kept for the site hang from it") {
+                Line(L("settings.passwords.fill.title"), L("settings.passwords.fill.detail")) {
                     Switch(on: $prefs.fillsPasswords)
                 }
                 Rule()
-                Line(
-                    "Offer passkeys",
-                    !prefs.passkeysPossible
-                        ? "Needs an Apple entitlement this build doesn't have — off keeps sites to the password"
-                        : Passkeys.access == .denied
-                        ? "macOS was told no — System Settings › Privacy & Security › Passkeys Access for Web Browsers"
-                        : "Touch ID or an iCloud passkey, on sites that offer one"
-                ) {
+                Line(L("settings.passwords.passkeys.title"), passkeysDetail) {
                     Switch(on: $prefs.passkeys)
                 }
                 if !Vault.never.isEmpty {
                     Rule()
-                    Line("Sites never asked", "\(Vault.never.count) sites told to stop offering") {
-                        Pill("Forget") {
+                    Line(L("settings.passwords.never.title"), L("settings.passwords.never.detail", Vault.never.count)) {
+                        Pill(L("settings.passwords.forget")) {
                             Vault.never = []
-                            browser.announce("Every site can ask again")
+                            browser.announce(L("announce.everySiteCanAsk"))
                         }
                     }
                 }
             }
             Card {
-                Line("Bring yours in", "From another browser on this Mac — nothing leaves it") {
-                    Pill("Import…") {
+                Line(L("settings.passwords.bring.title"), L("settings.passwords.bring.detail")) {
+                    Pill(L("settings.passwords.import")) {
                         browser.tuning = false
                         browser.bringingIn = ""
                     }
@@ -515,15 +522,15 @@ struct SettingsPanel: View {
 
     private var downloads: some View {
         Card {
-            Line("Save to", prefs.downloads.path.replacingOccurrences(of: NSHomeDirectory(), with: "~")) {
-                Pill("Change…") { chooseFolder() }
+            Line(L("settings.downloads.saveTo"), prefs.downloads.path.replacingOccurrences(of: NSHomeDirectory(), with: "~")) {
+                Pill(L("settings.downloads.change")) { chooseFolder() }
             }
             Rule()
-            Line("Ask where to save each file") {
+            Line(L("settings.downloads.ask.title")) {
                 Switch(on: $prefs.asksWhereToSave)
             }
             Rule()
-            Line("Always show the downloads button", "Beside the other buttons, even with nothing downloading. Off, it shows only while a file comes in") {
+            Line(L("settings.downloads.alwaysButton.title"), L("settings.downloads.alwaysButton.detail")) {
                 Switch(on: $prefs.alwaysShowsDownloads)
             }
         }
@@ -534,18 +541,18 @@ struct SettingsPanel: View {
     private var privacy: some View {
         VStack(alignment: .leading, spacing: 18) {
             Card {
-                Line("Block ads and trackers", shield.trouble ?? "Third parties whose only job is to watch") {
+                Line(L("settings.privacy.shield.title"), shield.trouble ?? L("settings.privacy.shield.detail")) {
                     Switch(on: $prefs.shielded)
                 }
                 if let trouble = shield.trouble {
                     Rule()
-                    Line(trouble, "Nothing is being blocked until this clears — try again, or restart Search") {
-                        Pill("Try again") { shield.compile() }
+                    Line(trouble, L("settings.privacy.shield.broken")) {
+                        Pill(L("settings.privacy.tryAgain")) { shield.compile() }
                     }
                 }
                 if let host = browser.hereHost, prefs.shielded, shield.trouble == nil {
                     Rule()
-                    Line("Block on \(host)", "Turn off here if the site breaks — the page reloads") {
+                    Line(L("settings.privacy.blockOnHost.title", host), L("settings.privacy.blockOnHost.detail")) {
                         Switch(on: Binding(
                             get: { !Shield.shared.isPaused(on: host) },
                             set: { on in
@@ -556,30 +563,30 @@ struct SettingsPanel: View {
                     }
                 }
                 Rule()
-                Line("Prevent cross-site tracking", "As in Safari. Off, sites you rarely open keep their sign-ins, and trackers inside other sites can follow you across them again, as in Chrome. Private tabs keep it on") {
+                Line(L("settings.privacy.tracking.title"), L("settings.privacy.tracking.detail")) {
                     Switch(on: Binding(get: { !prefs.keepsSignIns }, set: { prefs.keepsSignIns = !$0 }))
                 }
                 Rule()
-                Line("Camera, microphone, location and notifications", "What each site was allowed or refused") {
-                    Pill("Forget choices") { browser.forgetCaptureChoices() }
+                Line(L("settings.privacy.capture.title"), L("settings.privacy.capture.detail")) {
+                    Pill(L("settings.privacy.forgetChoices")) { browser.forgetCaptureChoices() }
                 }
                 Rule()
-                Line("Let sites ask to send notifications", "A site asks on a card over its page, and only one you allow reaches your Mac's notifications. Private tabs are never asked") {
+                Line(L("settings.privacy.notifications.title"), L("settings.privacy.notifications.detail")) {
                     Switch(on: $prefs.siteNotifications)
                 }
                 NotificationSites()
             }
             Card {
-                Line("History", "Every address you have been to") {
-                    Pill("Clear") { browser.clearHistory() }
+                Line(L("settings.privacy.history.title"), L("settings.privacy.history.detail")) {
+                    Pill(L("settings.privacy.clear")) { browser.clearHistory() }
                 }
                 Rule()
-                Line("Cookies and sign-ins", "Signs you out of every site") {
-                    Pill("Sign out of everything") { browser.clearSites() }
+                Line(L("settings.privacy.cookies.title"), L("settings.privacy.cookies.detail")) {
+                    Pill(L("settings.privacy.signOutAll")) { browser.clearSites() }
                 }
                 Rule()
-                Line("Cache", "Only what was fetched to draw pages") {
-                    Pill("Clear") { browser.clearCache() }
+                Line(L("settings.privacy.cache.title"), L("settings.privacy.cache.detail")) {
+                    Pill(L("settings.privacy.clear")) { browser.clearCache() }
                 }
             }
         }
@@ -595,10 +602,10 @@ struct SettingsPanel: View {
                     .aspectRatio(Logomark.canvas.width / Logomark.canvas.height, contentMode: .fit)
                     .frame(height: 34)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Search")
+                    Text(L("settings.about.brand"))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(Palette.ink)
-                    Text("by Office Commun · version \(Updater.version)")
+                    Text(L("settings.about.byline", Updater.version))
                         .font(.system(size: 12))
                         .foregroundStyle(Palette.muted)
                 }
@@ -608,43 +615,43 @@ struct SettingsPanel: View {
             Card {
                 Line(versionTitle, versionDetail) { versionControl }
                 Rule()
-                Line("Install updates on its own", "Off, Search still looks every hour and tells you, and installs only when you press Install") {
+                Line(L("settings.about.autoUpdate.title"), L("settings.about.autoUpdate.detail")) {
                     Switch(on: $prefs.installsUpdates)
                 }
                 Rule()
-                Line("Found something wrong?", "Opens a draft with the version already in it") {
-                    Pill("Send Feedback") { Links.writeFeedback() }
+                Line(L("settings.about.feedback.title"), L("settings.about.feedback.detail")) {
+                    Pill(L("settings.about.feedback.pill")) { Links.writeFeedback() }
                 }
                 Rule()
-                Line("What's new", "Every version's notes, newest first") {
-                    Pill("What's New…") { browser.notesShowing = true }
+                Line(L("settings.about.whatsNew.title"), L("settings.about.whatsNew.detail")) {
+                    Pill(L("settings.about.whatsNew.pill")) { browser.notesShowing = true }
                 }
             }
 
             Card {
-                Shortcut("⌘L", "Address")
+                Shortcut("⌘L", L("settings.about.shortcut.address"))
                 Rule()
-                Shortcut("⌘K", "Switch tab")
+                Shortcut("⌘K", L("settings.about.shortcut.switchTab"))
                 Rule()
-                Shortcut("⌘T  ⌘W  ⇧⌘T", "New, close, reopen tab")
+                Shortcut("⌘T  ⌘W  ⇧⌘T", L("settings.about.shortcut.tabOps"))
                 Rule()
-                Shortcut("⇧⌘V", "Paste and go")
+                Shortcut("⇧⌘V", L("settings.about.shortcut.pasteGo"))
                 Rule()
-                Shortcut("⇧⌘C", "Copy address")
+                Shortcut("⇧⌘C", L("settings.about.shortcut.copyAddress"))
                 Rule()
-                Shortcut("⌃⇥  ⌘1–9", "Next tab, a tab by its place")
+                Shortcut("⌃⇥  ⌘1–9", L("settings.about.shortcut.nextTab"))
                 Rule()
-                Shortcut("⇧⌘S", "Tabs in a sidebar")
+                Shortcut("⇧⌘S", L("settings.about.shortcut.sidebar"))
                 Rule()
-                Shortcut("⌘S", "Fold the sidebar away")
+                Shortcut("⌘S", L("settings.about.shortcut.fold"))
                 Rule()
-                Shortcut("⇧⌘R", "Reading mode")
+                Shortcut("⇧⌘R", L("settings.about.shortcut.reader"))
                 Rule()
-                Shortcut("⇧⌘H", "Hide something on this site")
+                Shortcut("⇧⌘H", L("settings.about.shortcut.hide"))
                 Rule()
-                Shortcut("⇧⌘P", "Float the video")
+                Shortcut("⇧⌘P", L("settings.about.shortcut.float"))
                 Rule()
-                Shortcut("⇧⌘⌫", "Clear browsing data")
+                Shortcut("⇧⌘⌫", L("settings.about.shortcut.clear"))
             }
         }
     }
@@ -653,26 +660,26 @@ struct SettingsPanel: View {
     /// in place; with none, it is simply this one.
     private var versionTitle: String {
         switch updater.stage {
-        case .none: return "Updates"
-        case .fetching(let next): return "Search \(next.version) is downloading…"
-        case .ready(let next): return "Search \(next.version) is ready"
-        case .offered(let next), .waiting(let next): return "Search \(next.version) is out"
+        case .none: return L("settings.about.updates")
+        case .fetching(let next): return L("settings.about.downloading", next.version)
+        case .ready(let next): return L("settings.about.ready", next.version)
+        case .offered(let next), .waiting(let next): return L("settings.about.isOut", next.version)
         }
     }
 
     private var versionDetail: String {
         switch updater.stage {
         case .none:
-            return updater.lastChecked.map { "Checked \($0.formatted(.relative(presentation: .named))) — every hour on its own" }
-                ?? "Checked every hour on its own"
+            return updater.lastChecked.map { L("settings.about.checkedRelative", $0.formatted(.relative(presentation: .named))) }
+                ?? L("settings.about.checkedHourly")
         case .fetching(let next):
-            return next.notes ?? "Quietly, in the background — nothing you have set is touched"
+            return next.notes ?? L("settings.about.fetchingNote")
         case .ready(let next):
-            return next.notes ?? "It's there the next time you open Search"
+            return next.notes ?? L("settings.about.readyNote")
         case .offered(let next):
-            return next.notes ?? "Open the disk image, the same as the first time"
+            return next.notes ?? L("settings.about.offeredNote")
         case .waiting(let next):
-            return next.notes ?? "Checked and put in place when you press Install"
+            return next.notes ?? L("settings.about.waitingNote")
         }
     }
 
@@ -680,21 +687,21 @@ struct SettingsPanel: View {
     private var versionControl: some View {
         switch updater.stage {
         case .none:
-            Pill(updater.checking ? "Checking…" : "Check now") {
+            Pill(updater.checking ? L("settings.about.checking") : L("settings.about.checkNow")) {
                 updater.check { found in
-                    if found == nil { browser.announce("This is the latest one") }
+                    if found == nil { browser.announce(L("announce.latestOne")) }
                 }
             }
             .disabled(updater.checking)
         case .fetching:
             Ring(size: 12)
         case .ready:
-            Pill("Relaunch now", filled: true) { updater.relaunch() }
+            Pill(L("settings.about.relaunch"), filled: true) { updater.relaunch() }
         case .offered:
-            Pill(updater.fetchingDisk ? "Downloading…" : "Download", filled: true) { updater.openDisk() }
+            Pill(updater.fetchingDisk ? L("settings.about.downloadingPill") : L("settings.about.download"), filled: true) { updater.openDisk() }
                 .disabled(updater.fetchingDisk)
         case .waiting:
-            Pill("Install", filled: true) { updater.install() }
+            Pill(L("settings.about.install"), filled: true) { updater.install() }
         }
     }
 
@@ -706,7 +713,7 @@ struct SettingsPanel: View {
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
         panel.directoryURL = prefs.downloads
-        panel.prompt = "Use this folder"
+        panel.prompt = L("settings.downloads.useFolder")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         prefs.downloads = url
     }
@@ -899,7 +906,7 @@ private struct NotificationSites: View {
             ForEach(sites, id: \.self) { site in
                 Rule()
                 Line(URL(string: site).map(SiteCard.site) ?? site, "Can send notifications") {
-                    Pill("Remove") { SiteNotifications.forget(site) }
+                    Pill(L("settings.extensions.remove")) { SiteNotifications.forget(site) }
                 }
             }
         }

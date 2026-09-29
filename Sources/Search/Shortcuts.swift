@@ -119,18 +119,29 @@ struct KeyCombo: Codable, Hashable {
 /// A menu command, and the key it has unless you give it another.
 struct Command: Identifiable {
     enum Section: String, CaseIterable {
-        case app = "Search", file = "File", edit = "Edit", view = "View", tabs = "Tabs", bookmarks = "Bookmarks", history = "History"
+        case app, file, edit, view, tabs, bookmarks, history
+
+        var title: String {
+            switch self {
+            case .app: return L("command.section.app")
+            case .file: return L("command.section.file")
+            case .edit: return L("command.section.edit")
+            case .view: return L("command.section.view")
+            case .tabs: return L("command.section.tabs")
+            case .bookmarks: return L("command.section.bookmarks")
+            case .history: return L("command.section.history")
+            }
+        }
     }
 
     let id: String
-    let title: String
+    var title: String { L(id) }
     let section: Section
     let defaultKey: KeyCombo?
     let run: @MainActor (Browser) -> Void
 
-    init(_ id: String, _ title: String, _ section: Section, _ key: KeyCombo?, _ run: @escaping @MainActor (Browser) -> Void) {
+    init(_ id: String, _ section: Section, _ key: KeyCombo?, _ run: @escaping @MainActor (Browser) -> Void) {
         self.id = id
-        self.title = title
         self.section = section
         self.defaultKey = key
         self.run = run
@@ -141,98 +152,98 @@ struct Command: Identifiable {
 
     /// The same commands, keys and order as the menus (see App.swift).
     static let all: [Command] = [
-        Command("app.settings", "Settings…", .app, KeyCombo(",")) { $0.tuning.toggle() },
-        Command("app.welcome", "Welcome…", .app, nil) { $0.welcoming = true },
-        Command("app.passwords", "Passwords…", .app, KeyCombo("l", option: true)) { $0.managing = true },
+        Command("app.settings", .app, KeyCombo(",")) { $0.tuning.toggle() },
+        Command("app.welcome", .app, nil) { $0.welcoming = true },
+        Command("app.passwords", .app, KeyCombo("l", option: true)) { $0.managing = true },
 
-        Command("file.newWindow", "New Window", .file, KeyCombo("n")) { _ in Browsers.newWindow() },
-        Command("file.newTab", "New Tab", .file, KeyCombo("t")) { $0.newTab() },
-        Command("file.newPrivateTab", "New Private Tab", .file, KeyCombo("n", shift: true)) { $0.newShyTab() },
-        Command("file.reopen", "Reopen Closed Tab", .file, KeyCombo("t", shift: true)) { $0.reopen() },
-        Command("file.openAddress", "Open Address…", .file, KeyCombo("l")) { $0.edit() },
-        Command("file.closeTab", "Close Tab", .file, KeyCombo("w")) { browser in
+        Command("file.newWindow", .file, KeyCombo("n")) { _ in Browsers.newWindow() },
+        Command("file.newTab", .file, KeyCombo("t")) { $0.newTab() },
+        Command("file.newPrivateTab", .file, KeyCombo("n", shift: true)) { $0.newShyTab() },
+        Command("file.reopen", .file, KeyCombo("t", shift: true)) { $0.reopen() },
+        Command("file.openAddress", .file, KeyCombo("l")) { $0.edit() },
+        Command("file.closeTab", .file, KeyCombo("w")) { browser in
             if let tab = browser.active { browser.close(tab) }
         },
-        Command("file.import", "Bring Things Over…", .file, nil) { $0.bringingIn = "" },
-        Command("file.share", "Share…", .file, nil) { $0.share() },
-        Command("file.print", "Print…", .file, KeyCombo("p")) { $0.printPage() },
+        Command("file.import", .file, nil) { $0.bringingIn = "" },
+        Command("file.share", .file, nil) { $0.share() },
+        Command("file.print", .file, KeyCombo("p")) { $0.printPage() },
 
-        Command("edit.find", "Find on Page…", .edit, KeyCombo("f")) { $0.openFind() },
-        Command("edit.findNext", "Find Next", .edit, KeyCombo("g")) { $0.look(forward: true) },
-        Command("edit.findPrevious", "Find Previous", .edit, KeyCombo("g", shift: true)) { $0.look(forward: false) },
+        Command("edit.find", .edit, KeyCombo("f")) { $0.openFind() },
+        Command("edit.findNext", .edit, KeyCombo("g")) { $0.look(forward: true) },
+        Command("edit.findPrevious", .edit, KeyCombo("g", shift: true)) { $0.look(forward: false) },
 
-        Command("view.sidebar", "Show Tabs in Sidebar", .view, KeyCombo("s", shift: true)) { $0.toggleSidebar() },
-        Command("view.fold", "Hide Sidebar or Tab Bar", .view, KeyCombo("s")) { $0.toggleFold() },
-        Command("view.reload", "Reload Page", .view, KeyCombo("r")) { $0.reload() },
-        Command("view.reloadOrigin", "Reload Page From Origin", .view, KeyCombo("r", option: true)) { $0.reload(fromOrigin: true) },
-        Command("view.reader", "Reading Mode", .view, KeyCombo("r", shift: true)) { $0.toggleReader() },
-        Command("view.float", "Float Video", .view, KeyCombo("p", shift: true)) { $0.toggleFloat() },
-        Command("view.summarize", "Summarize Page", .view, nil) { $0.summarizePage() },
-        Command("view.ask", "Ask About This Page…", .view, nil) { $0.askAboutPage() },
-        Command("view.hide", "Hide Elements…", .view, KeyCombo("h", shift: true)) { $0.toggleHiding() },
-        Command("view.hidden", "Hidden on This Site…", .view, KeyCombo("u", shift: true)) { $0.reviewing.toggle() },
-        Command("view.zoomIn", "Zoom In", .view, KeyCombo("+")) { $0.zoom(by: 1.1) },
-        Command("view.zoomOut", "Zoom Out", .view, KeyCombo("-")) { $0.zoom(by: 1 / 1.1) },
-        Command("view.actualSize", "Actual Size", .view, KeyCombo("0")) { $0.resetZoom() },
-        Command("view.inspector", "Web Inspector", .view, KeyCombo("i", option: true)) { $0.toggleInspector() },
-        Command("view.console", "JavaScript Console", .view, KeyCombo("j", option: true)) { $0.showConsole() },
-        Command("view.inspect", "Inspect Element", .view, KeyCombo("c", option: true)) { $0.inspectElement() },
+        Command("view.sidebar", .view, KeyCombo("s", shift: true)) { $0.toggleSidebar() },
+        Command("view.fold", .view, KeyCombo("s")) { $0.toggleFold() },
+        Command("view.reload", .view, KeyCombo("r")) { $0.reload() },
+        Command("view.reloadOrigin", .view, KeyCombo("r", option: true)) { $0.reload(fromOrigin: true) },
+        Command("view.reader", .view, KeyCombo("r", shift: true)) { $0.toggleReader() },
+        Command("view.float", .view, KeyCombo("p", shift: true)) { $0.toggleFloat() },
+        Command("view.summarize", .view, nil) { $0.summarizePage() },
+        Command("view.ask", .view, nil) { $0.askAboutPage() },
+        Command("view.hide", .view, KeyCombo("h", shift: true)) { $0.toggleHiding() },
+        Command("view.hidden", .view, KeyCombo("u", shift: true)) { $0.reviewing.toggle() },
+        Command("view.zoomIn", .view, KeyCombo("+")) { $0.zoom(by: 1.1) },
+        Command("view.zoomOut", .view, KeyCombo("-")) { $0.zoom(by: 1 / 1.1) },
+        Command("view.actualSize", .view, KeyCombo("0")) { $0.resetZoom() },
+        Command("view.inspector", .view, KeyCombo("i", option: true)) { $0.toggleInspector() },
+        Command("view.console", .view, KeyCombo("j", option: true)) { $0.showConsole() },
+        Command("view.inspect", .view, KeyCombo("c", option: true)) { $0.inspectElement() },
 
-        Command("tabs.back", "Back", .tabs, KeyCombo("[")) { $0.back() },
-        Command("tabs.forward", "Forward", .tabs, KeyCombo("]")) { $0.forward() },
-        Command("tabs.next", "Next Tab", .tabs, KeyCombo("]", shift: true)) { $0.step(1) },
-        Command("tabs.previous", "Previous Tab", .tabs, KeyCombo("[", shift: true)) { $0.step(-1) },
-        Command("tabs.search", "Search Tabs…", .tabs, KeyCombo("k")) { browser in
+        Command("tabs.back", .tabs, KeyCombo("[")) { $0.back() },
+        Command("tabs.forward", .tabs, KeyCombo("]")) { $0.forward() },
+        Command("tabs.next", .tabs, KeyCombo("]", shift: true)) { $0.step(1) },
+        Command("tabs.previous", .tabs, KeyCombo("[", shift: true)) { $0.step(-1) },
+        Command("tabs.search", .tabs, KeyCombo("k")) { browser in
             if browser.editing, !browser.offers.isEmpty { browser.stepSummon() } else { browser.summon() }
         },
         // ⌥⌘N, Chrome's on the Mac: ⌃⌘S is the Mac's own Show Sidebar, and
         // sits beside ⌘S, which folds the tabs away.
-        Command("tabs.split", "Split Current Page", .tabs, KeyCombo("n", option: true)) { browser in
+        Command("tabs.split", .tabs, KeyCombo("n", option: true)) { browser in
             guard browser.prefs.splitView else { return }
             browser.startSplit()
         },
-        Command("tabs.focusLeftPane", "Focus Left Page", .tabs, KeyCombo("left", control: true)) { browser in
+        Command("tabs.focusLeftPane", .tabs, KeyCombo("left", control: true)) { browser in
             guard browser.prefs.splitView else { return }
             browser.focusPane(onLeft: true)
         },
-        Command("tabs.focusRightPane", "Focus Right Page", .tabs, KeyCombo("right", control: true)) { browser in
+        Command("tabs.focusRightPane", .tabs, KeyCombo("right", control: true)) { browser in
             guard browser.prefs.splitView else { return }
             browser.focusPane(onLeft: false)
         },
-        Command("tabs.focusOtherPane", "Focus Other Page", .tabs, nil) { browser in
+        Command("tabs.focusOtherPane", .tabs, nil) { browser in
             guard browser.prefs.splitView else { return }
             browser.focusOtherPane()
         },
-        Command("tabs.swapSplit", "Swap Pages", .tabs, nil) { browser in
+        Command("tabs.swapSplit", .tabs, nil) { browser in
             guard browser.prefs.splitView else { return }
             browser.swapSplit()
         },
-        Command("tabs.separateSplit", "Separate Split Tabs", .tabs, nil) { browser in
+        Command("tabs.separateSplit", .tabs, nil) { browser in
             guard browser.prefs.splitView, let tab = browser.active else { return }
             browser.detachSplit(tab)
         },
-        Command("tabs.rename", "Rename Tab", .tabs, nil) { browser in
+        Command("tabs.rename", .tabs, nil) { browser in
             if let tab = browser.active { browser.beginTabRename(tab) }
         },
-        Command("tabs.duplicate", "Duplicate Tab", .tabs, KeyCombo("d")) { $0.duplicate() },
-        Command("tabs.copyAddress", "Copy Address", .tabs, KeyCombo("c", shift: true)) { $0.copyAddress() },
-        Command("tabs.copyMarkdown", "Copy as Markdown Link", .tabs, nil) { $0.copyMarkdownLink() },
-        Command("tabs.pasteAndGo", "Paste and Go", .tabs, KeyCombo("v", shift: true)) { $0.pasteAndGo() },
-        Command("tabs.closeOthers", "Close Other Tabs", .tabs, nil) { browser in
+        Command("tabs.duplicate", .tabs, KeyCombo("d")) { $0.duplicate() },
+        Command("tabs.copyAddress", .tabs, KeyCombo("c", shift: true)) { $0.copyAddress() },
+        Command("tabs.copyMarkdown", .tabs, nil) { $0.copyMarkdownLink() },
+        Command("tabs.pasteAndGo", .tabs, KeyCombo("v", shift: true)) { $0.pasteAndGo() },
+        Command("tabs.closeOthers", .tabs, nil) { browser in
             if let tab = browser.active { browser.closeOthers(but: tab) }
         },
-        Command("tabs.mute", "Stop Sound in Tab", .tabs, KeyCombo("m", shift: true)) { $0.pauseMedia() },
+        Command("tabs.mute", .tabs, KeyCombo("m", shift: true)) { $0.pauseMedia() },
 
-        Command("bookmarks.add", "Add This Page", .bookmarks, KeyCombo("b", shift: true)) { $0.bookmarkCurrent() },
-        Command("bookmarks.show", "Show Bookmarks…", .bookmarks, nil) { $0.bookmarking = true },
-        Command("bookmarks.bar", "Show Bookmarks Bar", .bookmarks, nil) { browser in
+        Command("bookmarks.add", .bookmarks, KeyCombo("b", shift: true)) { $0.bookmarkCurrent() },
+        Command("bookmarks.show", .bookmarks, nil) { $0.bookmarking = true },
+        Command("bookmarks.bar", .bookmarks, nil) { browser in
             withAnimation(Motion.glide) { browser.prefs.bookmarksBar.toggle() }
         },
 
-        Command("history.show", "Show History…", .history, KeyCombo("y")) { $0.recalling.toggle() },
-        Command("history.downloads", "Downloads…", .history, KeyCombo("j", shift: true)) { $0.hoarding.toggle() },
-        Command("history.clearData", "Clear Browsing Data…", .history, KeyCombo("delete", shift: true)) { $0.recallMode = .clearing },
-        Command("history.clear", "Clear History", .history, nil) { $0.clearHistory() },
+        Command("history.show", .history, KeyCombo("y")) { $0.recalling.toggle() },
+        Command("history.downloads", .history, KeyCombo("j", shift: true)) { $0.hoarding.toggle() },
+        Command("history.clearData", .history, KeyCombo("delete", shift: true)) { $0.recallMode = .clearing },
+        Command("history.clear", .history, nil) { $0.clearHistory() },
     ]
 }
 

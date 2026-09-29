@@ -457,11 +457,11 @@ enum SpaceMenu {
             menu.addItem(entry)
         }
         menu.addItem(.separator())
-        menu.addItem(item("New Space…") { browser.askForSpace() })
+        menu.addItem(item(L("chrome.space.new")) { browser.askForSpace() })
         menu.addItem(.separator())
         let here = browser.space
-        menu.addItem(item("Rename “\(here.name)”…") {
-            Ask.name("Rename Space", placeholder: here.name, initial: here.name, confirm: "Rename") { browser.renameSpace(here.id, to: $0) }
+        menu.addItem(item(L("chrome.space.renameNamed", here.name)) {
+            Ask.name(L("dialog.space.rename.title"), placeholder: here.name, initial: here.name, confirm: L("dialog.rename")) { browser.renameSpace(here.id, to: $0) }
         })
         let icons = NSMenu()
         for (symbol, name) in zip(Spaces.icons, Spaces.iconNames) {
@@ -469,25 +469,25 @@ enum SpaceMenu {
             choice.image = NSImage(systemSymbolName: symbol, accessibilityDescription: name)
             icons.addItem(choice)
         }
-        let icon = NSMenuItem(title: "Icon", action: nil, keyEquivalent: "")
+        let icon = NSMenuItem(title: L("chrome.space.icon"), action: nil, keyEquivalent: "")
         icon.submenu = icons
         menu.addItem(icon)
         // The order is the swipe's, and ⌃1–⌃9's.
         if let at = browser.spaces.firstIndex(where: { $0.id == here.id }) {
-            if at > 0 { menu.addItem(item("Move Left") { browser.moveSpace(here.id, to: at - 1) }) }
-            if at < browser.spaces.count - 1 { menu.addItem(item("Move Right") { browser.moveSpace(here.id, to: at + 1) }) }
+            if at > 0 { menu.addItem(item(L("chrome.space.moveLeft")) { browser.moveSpace(here.id, to: at - 1) }) }
+            if at < browser.spaces.count - 1 { menu.addItem(item(L("chrome.space.moveRight")) { browser.moveSpace(here.id, to: at + 1) }) }
         }
         let folder = here.downloads.map { URL(fileURLWithPath: $0).lastPathComponent }
-        menu.addItem(item(folder.map { "Downloads to “\($0)”…" } ?? "Downloads Folder…") {
+        menu.addItem(item(folder.map { L("chrome.space.downloadsNamed", $0) } ?? L("chrome.space.downloadsFolderPick")) {
             Ask.folder { browser.setSpaceDownloads(here.id, to: $0) }
         })
         if folder != nil {
-            menu.addItem(item("Downloads to the Folder in Settings") { browser.setSpaceDownloads(here.id, to: nil) })
+            menu.addItem(item(L("chrome.space.downloadsFolder")) { browser.setSpaceDownloads(here.id, to: nil) })
         }
         if !here.isFirst {
             menu.addItem(.separator())
-            menu.addItem(item("Delete “\(here.name)”…") {
-                Ask.sure("Delete “\(here.name)”?", detail: "Its tabs close, and its cookies and sign-ins are erased from this Mac. History and bookmarks stay.", confirm: "Delete") {
+            menu.addItem(item(L("chrome.space.deleteNamed", here.name)) {
+                Ask.sure(L("chrome.space.deleteNamed", here.name), detail: L("dialog.space.delete.message"), confirm: L("dialog.delete")) {
                     browser.deleteSpace(here.id)
                 }
             })
@@ -508,7 +508,7 @@ enum Ask {
         field.stringValue = initial
         alert.accessoryView = field
         alert.addButton(withTitle: confirm)
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: L("dialog.cancel"))
         alert.window.initialFirstResponder = field
         show(alert) { ok in
             let name = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -520,18 +520,18 @@ enum Ask {
     /// have — for when the column isn't there to hold the card.
     static func newSpace(then: @escaping (String, Bool) -> Void, cancelled: @escaping () -> Void) {
         let alert = NSAlert()
-        alert.messageText = "New Space"
-        alert.informativeText = "Its own tabs. Signed in where your other spaces are, unless it starts afresh."
+        alert.messageText = L("dialog.space.new.title")
+        alert.informativeText = L("dialog.space.new.detail")
         let field = NSTextField(frame: NSRect(x: 0, y: 30, width: 260, height: 24))
-        field.placeholderString = "Work"
-        let fresh = NSButton(checkboxWithTitle: "Start signed out, with its own cookies", target: nil, action: nil)
+        field.placeholderString = L("dialog.space.new.placeholder")
+        let fresh = NSButton(checkboxWithTitle: L("dialog.space.new.signedOut"), target: nil, action: nil)
         fresh.frame = NSRect(x: 0, y: 0, width: 260, height: 22)
         let box = NSView(frame: NSRect(x: 0, y: 0, width: 260, height: 56))
         box.addSubview(field)
         box.addSubview(fresh)
         alert.accessoryView = box
-        alert.addButton(withTitle: "Create")
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: L("dialog.create"))
+        alert.addButton(withTitle: L("dialog.cancel"))
         alert.window.initialFirstResponder = field
         show(alert) { ok in
             let name = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -545,7 +545,7 @@ enum Ask {
         alert.messageText = title
         alert.informativeText = detail
         alert.addButton(withTitle: confirm).hasDestructiveAction = true
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: L("dialog.cancel"))
         show(alert) { ok in if ok { then() } }
     }
 
@@ -554,8 +554,8 @@ enum Ask {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
-        panel.prompt = "Use for This Space"
-        panel.message = "Downloads in this space go here. Cancel keeps the folder it has."
+        panel.prompt = L("dialog.space.downloads.prompt")
+        panel.message = L("dialog.space.downloads.message")
         guard let window = Links.window else { return }
         panel.beginSheetModal(for: window) { answer in
             if answer == .OK, let url = panel.url { then(url) }
