@@ -217,7 +217,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此副本的 Gongzuotai 无法保存密钥"
+            "value": "此副本的 工作台 无法保存密钥"
           }
         }
       }
@@ -1475,7 +1475,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将此扩展添加到 Gongzuotai"
+            "value": "将此扩展添加到 工作台"
           }
         }
       }
@@ -1611,7 +1611,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai"
+            "value": "工作台"
           }
         }
       }
@@ -2682,7 +2682,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关闭后，Gongzuotai 仍每小时检查并通知你，只有按下「安装」时才安装"
+            "value": "关闭后，工作台 仍每小时检查并通知你，只有按下「安装」时才安装"
           }
         }
       }
@@ -2716,7 +2716,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai"
+            "value": "工作台"
           }
         }
       }
@@ -2835,7 +2835,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在下载 Gongzuotai %@…"
+            "value": "正在下载 工作台 %@…"
           }
         }
       }
@@ -2954,7 +2954,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai %@ 已发布"
+            "value": "工作台 %@ 已发布"
           }
         }
       }
@@ -2988,7 +2988,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai %@ 已就绪"
+            "value": "工作台 %@ 已就绪"
           }
         }
       }
@@ -3005,7 +3005,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "下次打开 Gongzuotai 时即可使用"
+            "value": "下次打开 工作台 时即可使用"
           }
         }
       }
@@ -3532,7 +3532,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此副本的 Gongzuotai 无法安全保存密钥——不是已签名的发行版。本机 App 仍可使用"
+            "value": "此副本的 工作台 无法安全保存密钥——不是已签名的发行版。本机 App 仍可使用"
           }
         }
       }
@@ -3719,7 +3719,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要 Apple 芯片版 Gongzuotai — 此副本以转译方式运行"
+            "value": "需要 Apple 芯片版 工作台 — 此副本以转译方式运行"
           }
         }
       }
@@ -4246,7 +4246,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "或在商店中找到扩展，在其页面点击「添加到 Gongzuotai」。"
+            "value": "或在商店中找到扩展，在其页面点击「添加到 工作台」。"
           }
         }
       }
@@ -4671,7 +4671,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许脚本驱动 Gongzuotai"
+            "value": "允许脚本驱动 工作台"
           }
         }
       }
@@ -4960,7 +4960,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "便于阅读后关闭，或用「在 Gongzuotai 中打开」(⌘O) 保留"
+            "value": "便于阅读后关闭，或用「在 工作台 中打开」(⌘O) 保留"
           }
         }
       }
@@ -5011,7 +5011,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai 是这台 Mac 的默认浏览器"
+            "value": "工作台 是这台 Mac 的默认浏览器"
           }
         }
       }
@@ -5657,7 +5657,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 负责存储——它已要求 Gongzuotai 不再询问"
+            "value": "%@ 负责存储——它已要求 工作台 不再询问"
           }
         }
       }
@@ -6048,7 +6048,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在此清除前不会拦截——请重试，或重启 Gongzuotai"
+            "value": "在此清除前不会拦截——请重试，或重启 工作台"
           }
         }
       }
@@ -6235,7 +6235,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "每次打开 Gongzuotai 时保留固定标签页，不恢复上次其他标签页。"
+            "value": "每次打开 工作台 时保留固定标签页，不恢复上次其他标签页。"
           }
         }
       }
@@ -7510,7 +7510,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "下载校验失败 — 请从常用渠道获取 Gongzuotai"
+            "value": "下载校验失败 — 请从常用渠道获取 工作台"
           }
         }
       }
@@ -7595,7 +7595,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在下载 Gongzuotai %@…"
+            "value": "正在下载 工作台 %@…"
           }
         }
       }
@@ -7612,7 +7612,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在下载 Gongzuotai %@…"
+            "value": "正在下载 工作台 %@…"
           }
         }
       }
@@ -7646,7 +7646,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai %@ 已发布 — 在 Gongzuotai 菜单中选择「下载更新」"
+            "value": "工作台 %@ 已发布 — 在 工作台 菜单中选择「下载更新」"
           }
         }
       }
@@ -7663,7 +7663,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai %@ 已发布 — 在 Gongzuotai 菜单中选择「安装更新」"
+            "value": "工作台 %@ 已发布 — 在 工作台 菜单中选择「安装更新」"
           }
         }
       }
@@ -7680,7 +7680,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai %@ 已就绪 — 下次打开即可使用"
+            "value": "工作台 %@ 已就绪 — 下次打开即可使用"
           }
         }
       }
@@ -7697,7 +7697,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai %@ 已就绪 — 重新启动以使用"
+            "value": "工作台 %@ 已就绪 — 重新启动以使用"
           }
         }
       }
@@ -7731,7 +7731,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gongzuotai 已是最新"
+            "value": "工作台 已是最新"
           }
         }
       }

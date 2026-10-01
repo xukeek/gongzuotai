@@ -188,6 +188,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleLocalizations</key>
   <array>$LOCALIZATIONS_XML
   </array>
+  <key>LSHasLocalizedDisplayName</key><true/>
   <key>LSMinimumSystemVersion</key><string>$MINIMUM</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.productivity</string>
   <key>NSHumanReadableCopyright</key><string>© Gongzuotai (fork of Search)</string>

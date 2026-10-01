@@ -2,6 +2,8 @@
 
 A small, fast, quiet web browser for the Mac, by [Office Commun](https://officecommun.com).
 
+**中文:** [README.zh-CN.md](README.zh-CN.md)
+
 ![Search, with its tabs down the left and a page taking the rest of the window](.github/screenshot.png)
 
 **[Download for macOS →](https://officecommun.com/search)** · macOS 14 or later · free · about 6 MB

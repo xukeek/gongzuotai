@@ -13,7 +13,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你访问的网站可以请求使用相机。Gongzuotai 会在每个站点首次请求时询问并记住你的选择；设置 › 隐私可忘记这些选择。"
+            "value": "你访问的网站可以请求使用相机。工作台会在每个站点首次请求时询问并记住你的选择；设置 › 隐私可忘记这些选择。"
           }
         }
       }
@@ -30,7 +30,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你访问的网站可以请求使用麦克风。Gongzuotai 会在每个站点首次请求时询问并记住你的选择；设置 › 隐私可忘记这些选择。"
+            "value": "你访问的网站可以请求使用麦克风。工作台会在每个站点首次请求时询问并记住你的选择；设置 › 隐私可忘记这些选择。"
           }
         }
       }
@@ -47,7 +47,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你访问的网站可以请求你的位置。除非你选择始终允许，Gongzuotai 会在每次请求时询问；设置 › 隐私可忘记这些选择。"
+            "value": "你访问的网站可以请求你的位置。除非你选择始终允许，工作台会在每次请求时询问；设置 › 隐私可忘记这些选择。"
           }
         }
       }
@@ -65,6 +65,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "下载的文件会保存到「下载」文件夹。"
+          }
+        }
+      }
+    },
+    "CFBundleDisplayName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gongzuotai"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作台"
+          }
+        }
+      }
+    },
+    "CFBundleName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gongzuotai"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作台"
           }
         }
       }
